@@ -1,0 +1,7 @@
+Remember: OpenGL is a state machine
+A buffer is just allocated memory
+
+fragment shader called many times, vertex shader called a few times
+
+fragment shader: determines color of each pixel
+vertex shader: determines position of verticies

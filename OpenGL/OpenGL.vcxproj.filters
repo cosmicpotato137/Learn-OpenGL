@@ -22,4 +22,7 @@
   <ItemGroup>
     <Text Include="Notes\Notes.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="res\shaders\basic.shader" />
+  </ItemGroup>
 </Project>

@@ -5,3 +5,7 @@ fragment shader called many times, vertex shader called a few times
 
 fragment shader: determines color of each pixel
 vertex shader: determines position of verticies
+
+vertex array obj contains binding between vertex buffer and vertex layout/spec
+
+size = bytes, count = element count

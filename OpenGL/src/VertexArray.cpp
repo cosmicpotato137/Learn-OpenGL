@@ -1,5 +1,4 @@
 #include "VertexArray.h"
-#include "Renderer.h"
 
 VertexArray::VertexArray()
 {
@@ -8,7 +7,7 @@ VertexArray::VertexArray()
 
 VertexArray::~VertexArray()
 {
-    GLCall(glDeleteVeretxArrays(1, &m_RendererID));
+    GLCall(glDeleteVertexArrays(1, &m_RendererID));
 }
 
 void VertexArray::AddBuffer(const VertexBuffer& vb, const VertexBufferLayout& layout)
@@ -24,12 +23,11 @@ void VertexArray::AddBuffer(const VertexBuffer& vb, const VertexBufferLayout& la
         const auto& element = elements[i];
         // pushes data to the target buffer
         GLCall(glEnableVertexAttribArray(i));
-        // formatting of data in current buffer
+        // formatting of data in current 
         GLCall(glVertexAttribPointer(i, element.count, element.type, 
             element.normalized, layout.GetStride(), (const void*)offset));
 
         offset += element.count * VertexBufferElement::GetSizeOfType(element.type);
-
     }
 }
 

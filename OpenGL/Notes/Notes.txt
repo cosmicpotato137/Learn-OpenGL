@@ -9,3 +9,5 @@ vertex shader: determines position of verticies
 vertex array obj contains binding between vertex buffer and vertex layout/spec
 
 size = bytes, count = element count
+
+Pipeline: vertex array -> vertex buffer -> 

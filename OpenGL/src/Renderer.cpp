@@ -1,4 +1,5 @@
 #include "Renderer.h"
+#include <GL/glew.h>
 
 void Renderer::Clear() const
 {

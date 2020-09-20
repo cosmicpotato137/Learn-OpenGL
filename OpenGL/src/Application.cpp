@@ -1,10 +1,5 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include <iostream>
-#include <fstream>
-#include <iomanip>
-#include <string>
-#include <sstream>
 #include <math.h>
 
 #include "Renderer.h"
@@ -13,6 +8,7 @@
 #include "VertexArray.h"
 #include "VertexBufferLayout.h"
 #include "Shader.h"
+#include "Texture.h"
 
 // http://docs.gl/
 
@@ -51,23 +47,27 @@ int main(void)
     std::cout << glGetString(GL_VERSION) << std::endl;
 
     float positions[]{
-            0.5f, 0.5f,
-            -0.5f, 0.5f,
-            0.5f, -0.5f,
-            -0.5f, -0.5f
+            -0.5f, -0.5f, 0.0f, 0.0f,
+            0.5f, -0.5f, 1.0f, 0.0f,
+            0.5f, 0.5f, 1.0f, 1.0f,
+            -0.5f, 0.5f, 0.0f, 1.0f
     };
 
     unsigned int indices[]{
-        1, 0, 2,
-        2, 3, 1
+        0, 1, 2,
+        1, 2, 3
     };
+
+    //GLCall(glEnable(GL_BLEND));
+    //GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
     // vertex array
     VertexArray va;
-    VertexBuffer vb(positions, 4 * 2 * sizeof(float));
+    VertexBuffer vb(positions, 4 * 4 * sizeof(float));
 
     // vertex buffer
     VertexBufferLayout layout;
+    layout.Push<float>(2);
     layout.Push<float>(2);
     va.AddBuffer(vb, layout);
 
@@ -76,7 +76,12 @@ int main(void)
 
     // shader to be used
     Shader shader("res/shaders/basic.shader");
-    //ShaderProgramSource source = ParseShader("res/shaders/basic.shader");
+    shader.Bind();
+
+    // define texture
+    //Texture texture("res/textures/unnamed.png");
+    //texture.Bind();
+    //shader.SetUniform1i("u_Texture", 0);
 
     va.Unbind();
     vb.Unbind();

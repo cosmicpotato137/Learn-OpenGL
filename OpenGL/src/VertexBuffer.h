@@ -1,7 +1,5 @@
 #pragma once
 
-#include "GLLog.h"
-
 class VertexBuffer
 {
 private:

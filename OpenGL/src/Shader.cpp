@@ -1,3 +1,7 @@
+#include <fstream>
+#include <sstream>
+
+#include "GLLog.h"
 #include "Shader.h"
 
 Shader::Shader(const std::string& filepath)
@@ -5,7 +9,6 @@ Shader::Shader(const std::string& filepath)
 {
     ShaderProgramSource source = ParseShader(filepath);
     m_RendererID = CreateShader(source.VertexSource, source.FragmentSource);
-
 }
 
 Shader::~Shader()
@@ -75,7 +78,6 @@ unsigned int Shader::CompileShader(unsigned int type, const std::string& source)
     return id;
 }
 
-
 int Shader::CreateShader(const std::string& vertexShader, const std::string& fragmentShader)
 {
     GLCall(unsigned int program = glCreateProgram());
@@ -111,15 +113,36 @@ void Shader::SetUniform4f(const std::string& name,
     GLCall(glUniform4f(GetUniformLocation(name), v0, v1, v2, v3));
 }
 
+void Shader::SetUniform1f(const std::string& name, float f)
+{
+    GLCall(glUniform1f(GetUniformLocation(name), f));
+}
 
-unsigned int Shader::GetUniformLocation(const std::string& name)
+void Shader::SetUniform1i(const std::string& name, int i)
+{
+    GLCall(glUniform1i(GetUniformLocation(name), i));
+}
+
+int Shader::GetUniformLocation(const std::string& name)
 {
     if (m_UniformLocationCache.find(name) != m_UniformLocationCache.end())
         return m_UniformLocationCache[name];
 
-    GLCall(int location = glGetUniformLocation(m_RendererID, "u_Color"));
+    GLCall(int location = glGetUniformLocation(m_RendererID, name.c_str()));
     if (location == -1)
+    {
         std::cout << "Warning: uniform '" << name << "' doesn't exist!" << std::endl;
         m_UniformLocationCache[name] = location;
+    }
+    //std::cout << location << std::endl;
     return location;
 }
+
+#ifdef _DEBUG
+void Shader::PrintUniforms()
+{
+    GLPrintUniformInfo(m_RendererID);
+}
+#else
+void Shader::PrintUniforms() {}
+#endif

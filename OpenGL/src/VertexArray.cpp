@@ -1,4 +1,5 @@
 #include "VertexArray.h"
+#include "GLLog.h"
 
 VertexArray::VertexArray()
 {

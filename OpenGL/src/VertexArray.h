@@ -1,6 +1,5 @@
 #pragma once
 
-#include "GLLog.h"
 #include "VertexBuffer.h"
 #include "VertexBufferLayout.h"
 

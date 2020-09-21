@@ -9,6 +9,7 @@
 #include "VertexBufferLayout.h"
 #include "Shader.h"
 #include "Texture.h"
+#include "GLLog.h"
 
 // http://docs.gl/
 

@@ -1,5 +1,4 @@
 #pragma once
-#include "GLLog.h"
 
 class IndexBuffer
 {
@@ -13,6 +12,6 @@ public:
 	void Bind() const;
 	void Unbind() const;
 
-	unsigned int GetCount() const;
+	inline unsigned int GetCount() const;
 };
 

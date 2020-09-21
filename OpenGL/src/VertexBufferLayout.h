@@ -2,13 +2,12 @@
 
 #include <vector>
 #include <GL/glew.h>
-
-#include "GLLog.h"
+#include "Renderer.h"
 
 struct VertexBufferElement
 {
-	unsigned int count;
 	unsigned int type;
+	unsigned int count;
 	unsigned char normalized;
 
 	static unsigned int GetSizeOfType(unsigned int type)
@@ -46,8 +45,8 @@ public:
 	template<>
 	void Push<float>(unsigned int count)
 	{
-		m_Elements.push_back({ count, GL_FLOAT, GL_FALSE });
-		m_Stride += count *		VertexBufferElement::GetSizeOfType(GL_FLOAT);
+		m_Elements.push_back({ GL_FLOAT, count, GL_FALSE });
+		m_Stride += count * VertexBufferElement::GetSizeOfType(GL_FLOAT);
 	}
 
 	template<>

@@ -55,11 +55,11 @@ int main(void)
 
     unsigned int indices[]{
         0, 1, 2,
-        1, 2, 3
+        0, 2, 3
     };
 
-    //GLCall(glEnable(GL_BLEND));
-    //GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+    GLCall(glEnable(GL_BLEND));
+    GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
     // vertex array
     VertexArray va;
@@ -79,9 +79,9 @@ int main(void)
     shader.Bind();
 
     // define texture
-    //Texture texture("res/textures/unnamed.png");
-    //texture.Bind();
-    //shader.SetUniform1i("u_Texture", 0);
+    Texture texture("res/textures/unnamed.png");
+    texture.Bind();
+    shader.SetUniform1i("u_Texture", 0);
 
     va.Unbind();
     vb.Unbind();

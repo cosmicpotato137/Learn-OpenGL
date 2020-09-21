@@ -118,7 +118,7 @@ int main(void)
         //glVertex2d(.3f, 0.0f);
         //glVertex2d(-.3f, 0.0f);
         //glVertex2d(0.0f, -.3f);
-        //glEnd(); 
+        //glEnd();
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);

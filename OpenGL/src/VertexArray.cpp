@@ -1,5 +1,5 @@
 #include "VertexArray.h"
-#include "Renderer.h"
+#include "GLLog.h"
 
 VertexArray::VertexArray()
 {
@@ -24,12 +24,11 @@ void VertexArray::AddBuffer(const VertexBuffer& vb, const VertexBufferLayout& la
         const auto& element = elements[i];
         // pushes data to the target buffer
         GLCall(glEnableVertexAttribArray(i));
-        // formatting of data in current buffer
+        // formatting of data in current 
         GLCall(glVertexAttribPointer(i, element.count, element.type, 
             element.normalized, layout.GetStride(), (const void*)offset));
 
         offset += element.count * VertexBufferElement::GetSizeOfType(element.type);
-
     }
 }
 

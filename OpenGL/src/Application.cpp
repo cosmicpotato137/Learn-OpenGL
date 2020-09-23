@@ -1,6 +1,8 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <math.h>
+#include <string>
+#include <fmt/include/fmt/core.h>
 
 #include "Renderer.h"
 #include "VertexBuffer.h"
@@ -11,15 +13,36 @@
 #include "Texture.h"
 #include "GLLog.h"
 
-#include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
-
 #include "imgui/imgui.h"
 #include "imgui/example_glfw_opengl3/imgui_impl_glfw.h"
 #include "imgui/example_glfw_opengl3/imgui_impl_opengl3.h"
 
+#include "Tests/TestClearColor.h"
+#include "Tests/Transforms.h"
+#include "Tests/TestTexture.h"
+
+using namespace test;
+
 
 // http://docs.gl/
+
+
+void ImGuiInit(GLFWwindow* window)
+{
+    ImGui::CreateContext();
+    //ImGuiIO& io = ImGui::GetIO(); (void)io;
+    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
+    //ImGui::StyleColorsClassic();
+
+    // Setup Platform/Renderer bindings
+    const char* glsl_version = "#version 330 core";
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init(glsl_version);
+}
 
 int main(void)
 {
@@ -55,77 +78,20 @@ int main(void)
 
     std::cout << glGetString(GL_VERSION) << std::endl;
 
-    float positions[]{
-            0.0f,   0.0f,   0.0f, 0.0f,
-            100.0f, 0.0f,   1.0f, 0.0f,
-            100.0f, 100.0f, 1.0f, 1.0f,
-            0.0f,   100.0f, 0.0f, 1.0f
-    };
-
-    unsigned int indices[]{
-        0, 1, 2,
-        0, 2, 3
-    };
-
     GLCall(glEnable(GL_BLEND));
     GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
-    // vertex array
-    VertexArray va;
-    VertexBuffer vb(positions, 4 * 4 * sizeof(float));
-
-    // vertex buffer
-    VertexBufferLayout layout;
-    layout.Push<float>(2);
-    layout.Push<float>(2);
-    va.AddBuffer(vb, layout);
-
-    // buffer indices to be referenced
-    IndexBuffer ib(indices, 6);
-
-    // projection matrix
-    glm::mat4 proj = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
-
-    // shader to be used
-    Shader shader("res/shaders/basic.shader");
-    shader.Bind();
-
-    // define texture
-    Texture texture("res/textures/unnamed.png");
-    texture.Bind();
-    shader.SetUniform1i("u_Texture", 0);
-
-
-    va.Unbind();
-    vb.Unbind();
-    ib.Unbind();
-    shader.Unbind();
-
     Renderer renderer;
 
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    ImGuiInit(window);
 
-    // Setup Dear ImGui style
-    ImGui::StyleColorsDark();
-    //ImGui::StyleColorsClassic();
+    test::Test* currentTest = nullptr;
+    test::TestMenu* testMenu = new test::TestMenu(currentTest);
+    currentTest = testMenu;
+    
+    testMenu->RegisterTest<test::TestClearColor>("Clear Color");
+    testMenu->RegisterTest<test::TestTexture2D>("Textrue");
 
-    // Setup Platform/Renderer bindings
-    const char* glsl_version = "#version 330 core";
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init(glsl_version);
-
-    glm::mat4 mvp;
-
-    glm::mat4 view;
-    glm::vec3 camera(-100.0f, 0.0f, 0.0f);
-
-    glm::mat4 model;
-    glm::vec3 model1Pos(200.0f, 200.0f, 0.0f);
-    glm::vec3 model2Pos(200.0f, 200.0f, 0.0f);
-    glm::vec3 color(1.0f, 1.0f, 1.0f);
     float r = 0.0;
     float inc = 0.01f;
     /* Loop until the user closes the window */
@@ -135,53 +101,29 @@ int main(void)
         // resets color of window
         renderer.Clear();
 
-        glfwPollEvents();
-
         // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        {   
-            // Edit 1 float using a slider from 0.0f to 1.0f
-            ImGui::SliderFloat3("Camera", &camera.x, -1000.0f, 1000.0f);
-            ImGui::SliderFloat3("Model 1", &model1Pos.x, 0.0f, 960.0f);
-            ImGui::SliderFloat3("Model 2", &model2Pos.x, 0.0f, 960.0f);
-            ImGui::ColorEdit3("Color", &color.r);
-            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+        if (currentTest)
+        {
+            currentTest->OnUpdate(0.0f);
+            currentTest->OnRender();
+
+            ImGui::Begin("Test");
+            if (currentTest != testMenu && ImGui::Button("<-"))
+            {
+                delete currentTest;
+                currentTest = testMenu;
+            }
+            currentTest->OnImGuiRender();
+            ImGui::End();
         }
 
         // imgui rendering
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-        
-
-        // update color
-        //float val = sin(r) / 2 + 0.5f;
-        //if (r >= 2 * 3.14f)
-        //    r = 0.0f;
-        //else
-        //    r += inc;
-
-        // get the view transformation matrix
-        view = glm::translate(glm::mat4(1.0f), camera);
-
-
-        // set shader uniforms
-        shader.Bind();
-        shader.SetUniform4f("u_Color", color.x, color.y, color.z, 1.0f);
-
-        // cherno 1
-        model = glm::translate(glm::mat4(1.0f), model1Pos);
-        mvp = proj * view * model;
-        shader.SetUniformMat4f("u_MVP", mvp);
-        renderer.Draw(va, ib, shader);
-
-        // cherno 2
-        model = glm::translate(glm::mat4(1.0f), model2Pos);
-        mvp = proj * view * model;
-        shader.SetUniformMat4f("u_MVP", mvp);
-        renderer.Draw(va, ib, shader);
 
         //legacy gl triangle
         //glBegin(GL_TRIANGLES);
@@ -196,6 +138,10 @@ int main(void)
         /* Poll for and process events */
         glfwPollEvents();
     }
+
+    delete currentTest;
+    if (currentTest != testMenu)
+        delete testMenu;
     } // added scope to avoid close window error
 
     // cleanup

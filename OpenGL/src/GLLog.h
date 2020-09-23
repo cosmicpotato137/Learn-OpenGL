@@ -4,7 +4,7 @@
 #include <string>
 #include <iostream>
 
-#define LOG(x) std::cout << c << std::endl
+#define LOG(x) std::cout << x << std::endl
 #define ASSERT(x) if (!(x)) __debugbreak();
 #define GLCall(x) GLClearError(); x;\
     ASSERT(GLLogCall(#x, __FILE__, __LINE__))

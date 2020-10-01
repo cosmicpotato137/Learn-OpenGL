@@ -21,9 +21,9 @@
     <ClCompile Include="src\Tests\TestClearColor.cpp" />
     <ClCompile Include="src\vendor\fmt\src\format.cc" />
     <ClCompile Include="src\vendor\fmt\src\os.cc" />
-    <ClCompile Include="src\Tests\Transforms.cpp" />
     <ClCompile Include="src\Tests\Test.cpp" />
     <ClCompile Include="src\Tests\TestTexture.cpp" />
+    <ClCompile Include="src\Tests\TestTransform.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\GLLog.h" />
@@ -339,8 +339,8 @@
     <ClInclude Include="src\vendor\fmt\include\fmt\posix.h" />
     <ClInclude Include="src\vendor\fmt\include\fmt\printf.h" />
     <ClInclude Include="src\vendor\fmt\include\fmt\ranges.h" />
-    <ClInclude Include="src\Tests\Transforms.h" />
     <ClInclude Include="src\Tests\TestTexture.h" />
+    <ClInclude Include="src\Tests\TestTransform.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\textures\dirt.png" />
@@ -485,6 +485,8 @@
     <None Include="src\vendor\glm\gtx\vector_angle.inl" />
     <None Include="src\vendor\glm\gtx\vector_query.inl" />
     <None Include="src\vendor\glm\gtx\wrap.inl" />
+    <None Include="res\shaders\3dTest.shader" />
+    <None Include="res\shaders\textureTest.shader" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Notes\Notes.txt" />

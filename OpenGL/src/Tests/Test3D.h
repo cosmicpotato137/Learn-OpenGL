@@ -1,5 +1,7 @@
 #pragma once
 
+#pragma once
+
 #include "Test.h"
 
 #include "glm/glm.hpp"
@@ -8,16 +10,16 @@
 #include "VertexBuffer.h"
 #include "VertexArray.h"
 #include "IndexBuffer.h"
-#include "Texture.h"
 #include "Shader.h"
+#include "Texture.h"
 
 namespace test {
-	
-	class TestTexture2D : public Test
+
+	class TestTransform2D : public Test
 	{
 	public:
-		TestTexture2D();
-		~TestTexture2D();
+		TestTransform2D();
+		~TestTransform2D();
 
 		void OnUpdate(float deltaTime) override;
 		void OnRender() override;
@@ -32,8 +34,5 @@ namespace test {
 
 		glm::mat4 m_Proj, m_View;
 		glm::vec3 m_Model1;
-
-		bool blend;
-		bool dblend;
 	};
 }

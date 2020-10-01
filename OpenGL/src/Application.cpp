@@ -18,7 +18,7 @@
 #include "imgui/example_glfw_opengl3/imgui_impl_opengl3.h"
 
 #include "Tests/TestClearColor.h"
-#include "Tests/Transforms.h"
+#include "Tests/TestTransform.h"
 #include "Tests/TestTexture.h"
 
 using namespace test;
@@ -78,9 +78,6 @@ int main(void)
 
     std::cout << glGetString(GL_VERSION) << std::endl;
 
-    GLCall(glEnable(GL_BLEND));
-    GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-
     Renderer renderer;
 
     ImGuiInit(window);
@@ -90,7 +87,8 @@ int main(void)
     currentTest = testMenu;
     
     testMenu->RegisterTest<test::TestClearColor>("Clear Color");
-    testMenu->RegisterTest<test::TestTexture2D>("Textrue");
+    testMenu->RegisterTest<test::TestTransform2D>("2D Transform");
+    testMenu->RegisterTest<test::TestTexture2D>("2D Textrue");
 
     float r = 0.0;
     float inc = 0.01f;

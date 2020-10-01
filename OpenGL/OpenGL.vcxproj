@@ -101,7 +101,7 @@
     <ClCompile Include="src\Tests\Test.cpp" />
     <ClCompile Include="src\Tests\TestClearColor.cpp" />
     <ClCompile Include="src\Tests\TestTexture.cpp" />
-    <ClCompile Include="src\Tests\Transforms.cpp" />
+    <ClCompile Include="src\Tests\TestTransform.cpp" />
     <ClCompile Include="src\Texture.cpp" />
     <ClCompile Include="src\vendor\fmt\src\format.cc" />
     <ClCompile Include="src\vendor\fmt\src\os.cc" />
@@ -121,7 +121,9 @@
     <Text Include="Notes\Notes.txt" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="res\shaders\3dTest.shader" />
     <None Include="res\shaders\basic.shader" />
+    <None Include="res\shaders\textureTest.shader" />
     <None Include="src\vendor\glm\detail\func_common.inl" />
     <None Include="src\vendor\glm\detail\func_common_simd.inl" />
     <None Include="src\vendor\glm\detail\func_exponential.inl" />
@@ -265,9 +267,9 @@
     <ClInclude Include="src\Renderer.h" />
     <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\Tests\TestTexture.h" />
-    <ClInclude Include="src\Tests\Transforms.h" />
     <ClInclude Include="src\Tests\Test.h" />
     <ClInclude Include="src\Tests\TestClearColor.h" />
+    <ClInclude Include="src\Tests\TestTransform.h" />
     <ClInclude Include="src\Texture.h" />
     <ClInclude Include="src\vendor\fmt\include\fmt\chrono.h" />
     <ClInclude Include="src\vendor\fmt\include\fmt\color.h" />

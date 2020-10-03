@@ -20,6 +20,7 @@
 #include "Tests/TestClearColor.h"
 #include "Tests/TestTransform.h"
 #include "Tests/TestTexture.h"
+#include "Tests/Test3D.h"
 
 using namespace test;
 
@@ -44,12 +45,24 @@ void ImGuiInit(GLFWwindow* window)
     ImGui_ImplOpenGL3_Init(glsl_version);
 }
 
+Test* currentTest; // temporary definition
+void ResizeWindow(GLFWwindow* window, int width, int height)
+{
+    currentTest->WindowSizeCallback(window, width, height);
+}
+
+void GetKey(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    currentTest->KeyCallback(window, key, scancode, action, mods);
+}
+
 int main(void)
 {
     // window struct
     GLFWwindow* window;
 
     { // added scope to avoid close window error
+
     /* Initialize the library */
     if (!glfwInit())
         return -1;
@@ -82,13 +95,16 @@ int main(void)
 
     ImGuiInit(window);
 
-    test::Test* currentTest = nullptr;
-    test::TestMenu* testMenu = new test::TestMenu(currentTest);
+    TestMenu* testMenu = new test::TestMenu(currentTest);
     currentTest = testMenu;
+
+    glfwSetFramebufferSizeCallback(window, ResizeWindow);
+    glfwSetKeyCallback(window, GetKey);
     
     testMenu->RegisterTest<test::TestClearColor>("Clear Color");
     testMenu->RegisterTest<test::TestTransform2D>("2D Transform");
     testMenu->RegisterTest<test::TestTexture2D>("2D Textrue");
+    testMenu->RegisterTest<test::Test3D>("3D Render");
 
     float r = 0.0;
     float inc = 0.01f;
@@ -96,8 +112,6 @@ int main(void)
     while (!glfwWindowShouldClose(window))
     {
         /* Render here */
-        // resets color of window
-        renderer.Clear();
 
         // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
@@ -135,11 +149,14 @@ int main(void)
 
         /* Poll for and process events */
         glfwPollEvents();
+
+        // resets color of window
+        renderer.Clear();
     }
 
-    delete currentTest;
     if (currentTest != testMenu)
         delete testMenu;
+    delete currentTest;
     } // added scope to avoid close window error
 
     // cleanup

@@ -1,7 +1,5 @@
 #pragma once
 
-#pragma once
-
 #include "Test.h"
 
 #include "glm/glm.hpp"
@@ -12,27 +10,28 @@
 #include "IndexBuffer.h"
 #include "Shader.h"
 #include "Texture.h"
+#include "Object.h"
 
 namespace test {
 
-	class TestTransform2D : public Test
+	class Test3D : public Test
 	{
 	public:
-		TestTransform2D();
-		~TestTransform2D();
+		Test3D();
+		~Test3D();
 
 		void OnUpdate(float deltaTime) override;
 		void OnRender() override;
 		void OnImGuiRender() override;
+		void WindowSizeCallback(GLFWwindow* window, int width, int height) override;
+		//void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) override;
 
 	private:
-		std::unique_ptr<VertexBuffer> m_VertexBuffer;
-		std::unique_ptr<VertexArray> m_VAO;
-		std::unique_ptr<IndexBuffer> m_IndexBuffer;
-		std::unique_ptr<Shader> m_Shader;
-		std::unique_ptr<Texture> m_Texture;
+		int m_H, m_W;
 
+		glm::vec3 m_Eye, m_Up, m_Amount, m_Center;
 		glm::mat4 m_Proj, m_View;
-		glm::vec3 m_Model1;
+		std::unique_ptr<Object> m_Teapot;
 	};
 }
+ 

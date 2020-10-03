@@ -83,7 +83,7 @@ int Shader::CreateShader(const std::string& vertexShader, const std::string& fra
     GLCall(unsigned int program = glCreateProgram());
     unsigned int vs = CompileShader(GL_VERTEX_SHADER, vertexShader);
     unsigned int fs = CompileShader(GL_FRAGMENT_SHADER, fragmentShader);
-
+        
     // attaches shaders to the current program
     GLCall(glAttachShader(program, vs));
     GLCall(glAttachShader(program, fs));
@@ -111,6 +111,11 @@ void Shader::SetUniform4f(const std::string& name,
 	float v0, float v1, float v2, float v3)
 {
     GLCall(glUniform4f(GetUniformLocation(name), v0, v1, v2, v3));
+}
+
+void Shader::SetUniformMat4fv(const std::string& name, bool transpose, const float* value)
+{
+    glUniformMatrix4fv(GetUniformLocation(name), 1, transpose, value);
 }
 
 void Shader::SetUniform1f(const std::string& name, float f)

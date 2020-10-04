@@ -15,11 +15,10 @@ namespace test {
 			90.0f * glm::pi<float>() / 180.0f, (float)m_W / (float)m_H, 0.1f, 1500.0f
 		);
 
-		m_View = glm::lookAt(m_Eye, m_Center, m_Up);
-
 		m_Teapot = std::make_unique<Object>(
-			"teapot", "res/models/cube1.obj", "res/shaders/obj.shader"
+			"teapot", "res/models/teapot.obj", "res/shaders/obj.shader"
 		);
+		m_Teapot->m_Scale = glm::vec3(50, 50, 50);
 	}
 
 	Test3D::~Test3D()
@@ -29,6 +28,8 @@ namespace test {
 
 	void Test3D::OnUpdate(float deltaTime)
 	{
+		m_View = glm::lookAt(m_Eye, m_Center, m_Up);
+
 		m_Teapot->Update();
 	}
 
@@ -66,22 +67,23 @@ namespace test {
 		);
 	}
 
-	//void Test3D::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-	//	switch (key) {
-	//	case 100: //left
-	//		Transform::left(amount, eye, up);
-	//		break;
-	//	case 101: //up
-	//		Transform::up(amount, eye, up);
-	//		break;
-	//	case 102: //right
-	//		Transform::left(-amount, eye, up);
-	//		break;
-	//	case 103: //down
-	//		Transform::up(-amount, eye, up);
-	//		break;
-	//	}
-	//}
+	void Test3D::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+		LOG(key);
+		switch (key) {
+		case GLFW_KEY_LEFT: //left
+			m_Eye = glm::rotate(glm::mat4(1.0f), glm::radians(m_Amount), m_Up) * glm::vec4(m_Eye, 1.0f);
+			break;
+		case GLFW_KEY_UP: //up
+			m_Up = glm::rotate(glm::mat4(1.0f), glm::radians(m_Amount), glm::cross(m_Eye, m_Up)) * glm::vec4(m_Up, 1.0f);
+			break;
+		case GLFW_KEY_RIGHT: //right
+			m_Eye = glm::rotate(glm::mat4(1.0f), -glm::radians(m_Amount), m_Up) * glm::vec4(m_Eye, 1.0f);
+			break;
+		case GLFW_KEY_DOWN: //down
+			m_Up = glm::rotate(glm::mat4(1.0f), -glm::radians(m_Amount), glm::cross(m_Eye, m_Up)) * glm::vec4(m_Up, 1.0f);
+			break;
+		}
+	}
 }
 
 // Set up initial position for eye,up and amount

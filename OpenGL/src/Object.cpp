@@ -19,7 +19,7 @@ Object::Object(std::string name, std::string filepath, std::string shaderpath)
 
 	m_VAO->AddBuffer(*m_VertBuff, layout);
 
-	m_IndexBuff = std::make_unique<IndexBuffer>(&m_Indices[0], m_Indices.size() * sizeof(unsigned int));
+	m_IndexBuff = std::make_unique<IndexBuffer>(&m_Indices[0], m_Indices.size());
 
 	m_Shader = std::make_unique<Shader>(shaderpath);
 
@@ -95,9 +95,9 @@ void Object::parse()
 		}
 		else if (c1 == 'f' && c2 == ' ')
 		{
-			fscanf_s(fp, "%d/%d/%d %d/%d/%d %d/%d/%d", 
-				&fa, &ignore, &ignore, &fb, &ignore, &ignore, 
-				&fc, &ignore, &ignore);
+			fscanf_s(fp, "%d//%d %d//%d %d//%d", 
+				&fa, &ignore, &fb, &ignore, 
+				&fc, &ignore);
 			// triangle 1
 			m_Indices.push_back(fa - 1);
 			m_Indices.push_back(fb - 1);

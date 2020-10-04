@@ -24,12 +24,13 @@ namespace test {
 		void OnRender() override;
 		void OnImGuiRender() override;
 		void WindowSizeCallback(GLFWwindow* window, int width, int height) override;
-		//void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) override;
+		void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) override;
 
 	private:
 		int m_H, m_W;
 
-		glm::vec3 m_Eye, m_Up, m_Amount, m_Center;
+		glm::vec3 m_Eye, m_Up, m_Center;
+		float m_Amount;
 		glm::mat4 m_Proj, m_View;
 		std::unique_ptr<Object> m_Teapot;
 	};

@@ -21,9 +21,16 @@ namespace test {
 		virtual void OnImGuiRender() {}
 
 		virtual void WindowSizeCallback(GLFWwindow* window, int width, int height) 
-		{ GLCall(glViewport(0.0f, 0.0f, width, height)); }
+		{ GLCall(glViewport(0, 0, width, height)); }
+
 		virtual void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 		{ if (key == GLFW_KEY_ESCAPE) glfwSetWindowShouldClose(window, 1); }
+
+		virtual void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {}
+
+		virtual void MousePosCallback(GLFWwindow* window, double xpos, double ypos) {}
+
+		virtual void MouseScrollCallback(GLFWwindow* window, double xoffset, double yoffset) {}
 	};
 
 	class TestMenu : public Test

@@ -12,12 +12,22 @@ Object::Object(std::string name, std::string filepath, std::string shaderpath)
 	parse();
 
 	m_VAO = std::make_unique<VertexArray>();
-	m_VertBuff = std::make_unique<VertexBuffer>(&m_Vertices[0], m_Vertices.size() * sizeof(glm::vec3));
 
-	VertexBufferLayout layout;
-	layout.Push<glm::vec3>(1); // vertex positions
+	// vertex position buffer
+	{
+		m_VertBuff = std::make_unique<VertexBuffer>(&m_Vertices[0], m_Vertices.size() * sizeof(glm::vec3));
+		VertexBufferLayout layout;
+		layout.Push<glm::vec3>(1); // vertex positions
+		m_VAO->AddBuffer(*m_VertBuff, layout);
+	}
 
-	m_VAO->AddBuffer(*m_VertBuff, layout);
+	// normal buffer
+	{
+		m_NormalBuff = std::make_unique<VertexBuffer>(&m_Normals[0], m_Normals.size() * sizeof(glm::vec3));
+		VertexBufferLayout layout;
+		layout.Push<glm::vec3>(1);
+		m_VAO->AddBuffer(*m_NormalBuff, layout, 1);
+	}
 
 	m_IndexBuff = std::make_unique<IndexBuffer>(&m_Indices[0], m_Indices.size());
 

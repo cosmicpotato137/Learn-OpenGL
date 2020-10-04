@@ -56,6 +56,21 @@ void GetKey(GLFWwindow* window, int key, int scancode, int action, int mods)
     currentTest->KeyCallback(window, key, scancode, action, mods);
 }
 
+void GetMouseButton(GLFWwindow* window, int button, int action, int mods)
+{
+    currentTest->MouseButtonCallback(window, button, action, mods);
+}
+
+void GetMousePos(GLFWwindow* window, double xpos, double ypos)
+{
+    currentTest->MousePosCallback(window, xpos, ypos);
+}
+
+void GetMouseScroll(GLFWwindow* window, double xoffset, double yoffset)
+{
+    currentTest->MouseScrollCallback(window, xoffset, yoffset);
+}
+
 int main(void)
 {
     // window struct
@@ -100,6 +115,9 @@ int main(void)
 
     glfwSetFramebufferSizeCallback(window, ResizeWindow);
     glfwSetKeyCallback(window, GetKey);
+    glfwSetMouseButtonCallback(window, GetMouseButton);
+    glfwSetCursorPosCallback(window, GetMousePos);
+    glfwSetScrollCallback(window, GetMouseScroll);
     
     testMenu->RegisterTest<test::TestClearColor>("Clear Color");
     testMenu->RegisterTest<test::TestTransform2D>("2D Transform");

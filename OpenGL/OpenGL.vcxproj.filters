@@ -492,6 +492,7 @@
     <None Include="res\shaders\textureTest.shader" />
     <None Include="res\shaders\Test3D.shader" />
     <None Include="res\shaders\obj.shader" />
+    <None Include="res\shaders\debug.shader" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Notes\Notes.txt" />

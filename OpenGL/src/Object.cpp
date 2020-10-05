@@ -17,17 +17,17 @@ Object::Object(std::string name, std::string filepath, std::string shaderpath)
 	{
 		m_VertBuff = std::make_unique<VertexBuffer>(&m_Vertices[0], m_Vertices.size() * sizeof(glm::vec3));
 		VertexBufferLayout layout;
-		layout.Push<glm::vec3>(1); // vertex positions
+		layout.Push<glm::vec3>(2); // vertex positions
 		m_VAO->AddBuffer(*m_VertBuff, layout);
 	}
 
 	// normal buffer
-	{
-		m_NormalBuff = std::make_unique<VertexBuffer>(&m_Normals[0], m_Normals.size() * sizeof(glm::vec3));
-		VertexBufferLayout layout;
-		layout.Push<glm::vec3>(1);
-		m_VAO->AddBuffer(*m_NormalBuff, layout, 1);
-	}
+	//{
+	//	m_NormalBuff = std::make_unique<VertexBuffer>(&m_Normals[0], m_Normals.size() * sizeof(glm::vec3));
+	//	VertexBufferLayout layout;
+	//	layout.Push<glm::vec3>(1);
+	//	m_VAO->AddBuffer(*m_NormalBuff, layout, 1);
+	//}
 
 	m_IndexBuff = std::make_unique<IndexBuffer>(&m_Indices[0], m_Indices.size());
 
@@ -66,10 +66,14 @@ void Object::parse()
 {
 	FILE* fp;
 	float x, y, z;
-	int fa, fb, fc, ignore;
+	int fa, fb, fc, na, nb, nc, ignore;
 	char c1, c2;
 	float minY = INFINITY, minZ = INFINITY;
 	float maxY = -INFINITY, maxZ = -INFINITY;
+
+	std::vector<glm::vec3> verts;
+	std::vector<glm::vec3> norms;
+	std::vector<glm::vec2> indices;
 
 	fopen_s(&fp, m_Filepath.c_str(), "rb");
 
@@ -92,7 +96,7 @@ void Object::parse()
 		// get vertices
 		if ((c1 == 'v') && (c2 == ' ')) {
 			fscanf_s(fp, "%f %f %f", &x, &y, &z);
-			m_Vertices.push_back(glm::vec3(x, y, z));
+			verts.push_back(glm::vec3(x, y, z));
 			if (y < minY) minY = y;
 			if (z < minZ) minZ = z;
 			if (y > maxY) maxY = y;
@@ -101,17 +105,15 @@ void Object::parse()
 		// get normals
 		else if ((c1 == 'v') && (c2 == 'n')) {
 			fscanf_s(fp, "%f %f %f", &x, &y, &z);
-			m_Normals.push_back(glm::normalize(glm::vec3(x, y, z)));
+			norms.push_back(glm::normalize(glm::vec3(x, y, z)));
 		}
 		else if (c1 == 'f' && c2 == ' ')
 		{
-			fscanf_s(fp, "%d//%d %d//%d %d//%d", 
-				&fa, &ignore, &fb, &ignore, 
-				&fc, &ignore);
-			// triangle 1
-			m_Indices.push_back(fa - 1);
-			m_Indices.push_back(fb - 1);
-			m_Indices.push_back(fc - 1);
+			fscanf_s(fp, "%d//%d %d//%d %d//%d", &fa, &na, &fb, &nb, &fc, &nc);
+			// triangle indices -- (vert, normal)
+			indices.push_back(glm::vec2(fa - 1, na - 1));
+			indices.push_back(glm::vec2(fb - 1, nb - 1));
+			indices.push_back(glm::vec2(fc - 1, nc - 1));
 		}
 		else if (c1 == 's' && c2 == ' ')
 		{
@@ -127,4 +129,11 @@ void Object::parse()
 	//	glm::vec3 shiftedVertex = (m_Vertices[i] - glm::vec3(0.0f, avgY, avgZ)) * glm::vec3(0.975f, 0.975f, 0.975f);
 	//	m_Vertices[i] = shiftedVertex;
 	//}
+
+	for (unsigned int i = 0; i < indices.size(); i++)
+	{
+		m_Vertices.push_back(verts[indices[i].x]);
+		m_Vertices.push_back(norms[indices[i].y]);
+		m_Indices.push_back(i);
+	}
 }

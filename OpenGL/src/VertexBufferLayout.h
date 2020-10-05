@@ -55,7 +55,8 @@ public:
 	template<>
 	void Push<glm::vec3>(unsigned int count)
 	{
-		Push<float>(count * 3);
+		for (unsigned int i = 0; i < count; i++)
+			Push<float>(3);
 	}
 
 	template<>

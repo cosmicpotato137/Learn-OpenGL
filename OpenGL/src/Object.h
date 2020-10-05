@@ -34,7 +34,6 @@ public:
 	std::string m_Filepath;
 
 	std::vector<glm::vec3> m_Vertices;
-	std::vector<glm::vec3> m_Normals;
 	std::vector<unsigned int> m_Indices;
 
 	glm::vec3 m_Position;
@@ -43,7 +42,30 @@ public:
 
 	std::unique_ptr<VertexArray> m_VAO;
 	std::unique_ptr<VertexBuffer> m_VertBuff;
-	std::unique_ptr<VertexBuffer> m_NormalBuff;
 	std::unique_ptr<IndexBuffer> m_IndexBuff;
 	std::unique_ptr<Shader> m_Shader;
 };
+
+//class DebugObject : public Object
+//{
+//public:
+//	DebugObject(std::string& name, std::string& filepath, std::string& shaderpath);
+//
+//	void Render(Renderer renderer, glm::mat4 proj, glm::mat4 view);
+//	void Update();
+//
+//public:
+//	std::string m_Name;
+//
+//	std::vector<glm::vec3> m_Vertices;
+//	std::vector<unsigned int> m_Indices;
+//
+//	glm::vec3 m_Position;
+//	glm::vec3 m_Scale;
+//	glm::mat4 m_Transform;
+//
+//	std::unique_ptr<VertexArray> m_VAO;
+//	std::unique_ptr<VertexBuffer> m_VertBuff;
+//	std::unique_ptr<IndexBuffer> m_IndexBuff;
+//	std::unique_ptr<Shader> m_Shader;
+//};

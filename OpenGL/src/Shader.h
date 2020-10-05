@@ -26,6 +26,7 @@ public:
 
 	void SetUniform4f(const std::string& name, float v0, float v1, float v2, float v3);
 	void SetUniform4fv(const std::string& name, const float* value);
+	void SetUniform3f(const std::string& name, float v0, float v1, float v2);
 	void SetUniform3fv(const std::string& name, const float* value);
 	void SetUniformMat4fv(const std::string& name, bool transpose, const float* value);
 	void SetUniform1f(const std::string& name, float f);

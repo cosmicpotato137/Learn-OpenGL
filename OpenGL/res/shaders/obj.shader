@@ -3,6 +3,7 @@
 
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec3 normal;
+layout(location = 2) in vec3 light;
 out vec4 v_Position;
 out vec4 v_Normal;
 
@@ -23,6 +24,8 @@ in vec4 v_Position;
 in vec4 v_Normal;
 layout(location = 0) out vec4 color;
 
+uniform float light0;
+
 // color and position
 uniform vec3 light0dirn;
 uniform vec4 light0color;
@@ -38,7 +41,7 @@ uniform float shininess;
 vec4 ComputeLight(const in vec3 direction, const in vec4 lightcolor, const in vec3 normal, const in vec4 mydiffuse) 
 {
     float nDotL = dot(normal, direction);
-    vec4 lambert = mydiffuse * lightcolor * max(nDotL, 0.0);
+    vec4 lambert = mydiffuse * lightcolor * max(-nDotL, 0.0);
 
     return lambert;
 }
@@ -56,15 +59,20 @@ void main()
     vec3 normal = normalize(v_Normal.xyz);
 
     // Light 0, directional
-    vec3 direction0 = normalize(light0dirn);
-    vec3 half0 = normalize(direction0 + eyedirn);
-    vec4 col0 = ComputeLight(direction0, light0color, normal, diffuse);
+    vec4 col0 = vec4(0.0f, 0.0f, 0.0f, 0.0f);
+    if (light0)
+    {
+        vec3 direction0 = normalize(light0dirn);
+        vec3 half0 = normalize(direction0 + eyedirn);
+        vec4 col0 = ComputeLight(direction0, light0color, normal, diffuse);
+    }
 
     // Light 1, point 
-    vec3 position = light1posn.xyz / light1posn.w;
-    vec3 direction1 = normalize(position - mypos); // no attenuation 
-    vec3 half1 = normalize(direction1 + eyedirn);
-    vec4 col1 = ComputeLight(direction1, light1color, normal, diffuse);
+    //vec3 position = light1posn.xyz / light1posn.w;
+    //vec3 direction1 = normalize(position - mypos); // no attenuation 
+    //vec3 half1 = normalize(direction1 + eyedirn);
+    //vec4 col1 = ComputeLight(direction1, light1color, normal, diffuse);
 
-    color = ambient + col0 + col1;
+    //color = ambient + col0 + col1;
+    color = col0 + ambient;
 };

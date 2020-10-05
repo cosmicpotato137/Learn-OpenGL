@@ -7,33 +7,20 @@ namespace test {
 
 	Test3D::Test3D()
 		: m_W(960), m_H(540),
-		m_Eye(0.0f, 0.0f, 500), m_Up(0.0f, 1.0f, 0.0f), m_Amount(5), m_Center(0.0f, 0.0f, 0.0f)
+		m_Eye(0.0f, 0.0f, 500), m_Up(0.0f, 1.0f, 0.0f), m_Amount(5), m_Center(0.0f, 0.0f, 0.0f),
+		m_LightInt(0.0f)
 	{
 		GLCall(glEnable(GL_DEPTH_TEST));
 
 		m_Proj = glm::perspective(
 			90.0f * glm::pi<float>() / 180.0f, (float)m_W / (float)m_H, 0.1f, 1500.0f
 		);
+		m_View = glm::lookAt(m_Eye, m_Center, m_Up);
 
 		m_Teapot = std::make_unique<Object>(
-			"teapot", "res/models/box.obj", "res/shaders/obj.shader"
+			"teapot", "res/models/teapot.obj", "res/shaders/Test3D.shader"
 		);
 		m_Teapot->m_Scale = glm::vec3(50, 50, 50);
-
-		glm::vec4 diffuse(1.0f, 0.5f, 0.5f, 1.0f);
-		glm::vec4 light0(0.5, 0, 0, 0);
-		glm::vec4 light_specular(1, 0.5, 0, 1);
-		glm::vec4 light_specular1(0, 0.5, 1, 1);
-		glm::vec4 light1(200, 200, 200, 1);
-
-
-		m_Teapot->m_Shader->Bind();
-		m_Teapot->m_Shader->SetUniform4fv("diffuse", &diffuse[0]);
-
-		m_Teapot->m_Shader->SetUniform3fv("light0dirn", &light0[0]);
-		m_Teapot->m_Shader->SetUniform4fv("light1color", &light_specular[0]);
-		m_Teapot->m_Shader->SetUniform4fv("light1posn", &light1[0]);
-		m_Teapot->m_Shader->SetUniform4fv("light1color", &light_specular1[0]);
 	}
 
 	Test3D::~Test3D()
@@ -43,24 +30,17 @@ namespace test {
 
 	void Test3D::OnUpdate(float deltaTime)
 	{
-		float speed = 3;
-		float angle;
-		if (m_Lmb)
-		{
-			angle = atan(m_Mousedx / glm::length(m_Eye)) * speed;
-			glm::mat4 rot = glm::rotate(glm::mat4(1.0f), angle, glm::vec3(0.0f, 1.0f, 0.0f));
-			m_Eye = rot * glm::vec4(m_Eye, 1.0f);
-			m_Up = rot * glm::vec4(m_Up, 1.0f);
+		m_Teapot->m_Shader->Bind();
+		m_Teapot->m_Shader->SetUniform4fv("u_Model", &m_TeapotCol[0]);
 
-			angle = -atan(m_Mousedy / glm::length(m_Eye)) * speed;
-			m_Piv = glm::normalize(glm::cross(m_Eye, m_Up));
-			m_Eye = glm::rotate(glm::mat4(1.0f), angle, m_Piv) * glm::vec4(m_Eye, 1.0f);
-			m_Up = glm::cross(m_Piv, glm::normalize(m_Eye));
-		}
-		if (m_Rmb)
-		{
+		m_Teapot->m_Shader->SetUniform1f("u_LightInt", m_LightInt);
 
-		}
+		glm::vec4 light(-1.0, -1.0, -1.0, 0.0f);
+		light = m_View * light;
+		m_Teapot->m_Shader->SetUniform3fv("u_LightDir", &light[0]);
+
+		m_Teapot->m_Shader->SetUniform4fv("u_Light", &m_LightCol[0]);
+		m_Teapot->m_Shader->SetUniform4fv("u_Ambient", &m_AmbientCol[0]);
 
 		m_View = glm::lookAt(m_Eye, m_Center, m_Up);
 
@@ -82,9 +62,14 @@ namespace test {
 		glm::vec4 camera = m_View * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
 		ImGui::SliderFloat3("Model", &m_Teapot->m_Position.x, -100.0f, 100.0f);
-		ImGui::SliderFloat3("Scale", &m_Teapot->m_Scale.x, 0.0f, 50.0f);
+		ImGui::SliderFloat3("Scale", &m_Teapot->m_Scale.x, 0.0f, 100.0f);
+		ImGui::ColorEdit4("Model Color", m_TeapotCol);
 
-		ImGui::Text("Camera Position (%f, %f, %f)", -camera.x, -camera.y, camera.z);
+		ImGui::SliderFloat("Light Intensity", &m_LightInt, 0.0f, 10.0f);
+		ImGui::ColorEdit4("Light Color", m_LightCol);
+		ImGui::ColorEdit4("Ambient Color", m_AmbientCol);
+
+		ImGui::Text("Camera Position (%f, %f, %f)", -camera.x, -camera.y, -camera.z);
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	}
 
@@ -99,35 +84,6 @@ namespace test {
 		m_Proj = glm::perspective(
 			90.0f * glm::pi<float>() / 180.0f, (float)m_W / (float)m_H, 0.1f, 1500.0f
 		);
-	}
-
-	void Test3D::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-		glm::mat4 rot;
-		switch (key) {
-		case GLFW_KEY_LEFT: //left
-			rot = glm::rotate(glm::mat4(1.0f), glm::radians(m_Amount), glm::vec3(0.0f, 1.0f, 0.0f));
-			m_Eye = rot * glm::vec4(m_Eye, 1.0f);
-			m_Up = rot * glm::vec4(m_Up, 1.0f);
-			break;
-		case GLFW_KEY_UP: //up
-			m_Piv = glm::normalize(glm::cross(m_Eye, m_Up));
-			m_Eye = glm::rotate(glm::mat4(1.0f), glm::radians(m_Amount), m_Piv) * glm::vec4(m_Eye, 1.0f);
-			m_Up = glm::cross(m_Piv, glm::normalize(m_Eye));
-			break;
-		case GLFW_KEY_RIGHT: //right
-			rot = glm::rotate(glm::mat4(1.0f), -glm::radians(m_Amount), glm::vec3(0.0f, 1.0f, 0.0f));
-			m_Eye = rot * glm::vec4(m_Eye, 1.0f);
-			m_Up = rot * glm::vec4(m_Up, 1.0f);
-			break;
-		case GLFW_KEY_DOWN: //down
-			m_Piv = glm::normalize(glm::cross(m_Eye, m_Up));
-			m_Eye = glm::rotate(glm::mat4(1.0f), -glm::radians(m_Amount), m_Piv) * glm::vec4(m_Eye, 1.0f);
-			m_Up = glm::cross(m_Piv, glm::normalize(m_Eye));
-			break;
-
-		case GLFW_KEY_ESCAPE:
-			glfwSetWindowShouldClose(window, 1);
-		}
 	}
 
 	void Test3D::MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
@@ -145,10 +101,24 @@ namespace test {
 
 	void Test3D::MousePosCallback(GLFWwindow* window, double xpos, double ypos)
 	{
-		m_Mousedx = m_Mousex - xpos;
-		m_Mousedy = m_Mousey - ypos;
-		m_Mousex = xpos;
-		m_Mousey = ypos;
+		float mousedx = m_Mousex - (float)xpos;
+		float mousedy = m_Mousey - (float)ypos;
+		float speed = 3;
+		float angle;
+		if (m_Lmb)
+		{
+			angle = atan(mousedx / glm::length(m_Eye)) * speed;
+			glm::mat4 rot = glm::rotate(glm::mat4(1.0f), angle, glm::vec3(0.0f, 1.0f, 0.0f));
+			m_Eye = rot * glm::vec4(m_Eye, 1.0f);
+			m_Up = rot * glm::vec4(m_Up, 1.0f);
+
+			angle = -atan(mousedy / glm::length(m_Eye)) * speed;
+			m_Piv = glm::normalize(glm::cross(m_Eye, m_Up));
+			m_Eye = glm::rotate(glm::mat4(1.0f), angle, m_Piv) * glm::vec4(m_Eye, 1.0f);
+			m_Up = glm::cross(m_Piv, glm::normalize(m_Eye));
+		}
+		m_Mousex = (float)xpos;
+		m_Mousey = (float)ypos;
 	}
 
 	void Test3D::MouseScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
@@ -157,7 +127,6 @@ namespace test {
 		glm::vec3 en = glm::normalize(m_Eye);
 
 		m_Eye += en * amt * (float)yoffset;
-
 	}
 }
 

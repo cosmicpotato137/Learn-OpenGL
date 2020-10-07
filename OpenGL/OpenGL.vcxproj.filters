@@ -19,13 +19,14 @@
     <ClCompile Include="src\VertexBuffer.cpp" />
     <ClCompile Include="src\VertexBufferLayout.cpp" />
     <ClCompile Include="src\Tests\TestClearColor.cpp" />
-    <ClCompile Include="src\vendor\fmt\src\format.cc" />
-    <ClCompile Include="src\vendor\fmt\src\os.cc" />
     <ClCompile Include="src\Tests\Test.cpp" />
     <ClCompile Include="src\Tests\TestTexture.cpp" />
     <ClCompile Include="src\Tests\TestTransform.cpp" />
     <ClCompile Include="src\Tests\Test3D.cpp" />
     <ClCompile Include="src\Object.cpp" />
+    <ClCompile Include="src\Tests\TestPhong.cpp" />
+    <ClCompile Include="src\Materail.cpp" />
+    <ClCompile Include="src\ObjAttrib.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\GLLog.h" />
@@ -329,22 +330,13 @@
     <ClInclude Include="src\VertexBufferLayout.h" />
     <ClInclude Include="src\Tests\Test.h" />
     <ClInclude Include="src\Tests\TestClearColor.h" />
-    <ClInclude Include="src\vendor\fmt\include\fmt\chrono.h" />
-    <ClInclude Include="src\vendor\fmt\include\fmt\color.h" />
-    <ClInclude Include="src\vendor\fmt\include\fmt\compile.h" />
-    <ClInclude Include="src\vendor\fmt\include\fmt\core.h" />
-    <ClInclude Include="src\vendor\fmt\include\fmt\format.h" />
-    <ClInclude Include="src\vendor\fmt\include\fmt\format-inl.h" />
-    <ClInclude Include="src\vendor\fmt\include\fmt\locale.h" />
-    <ClInclude Include="src\vendor\fmt\include\fmt\os.h" />
-    <ClInclude Include="src\vendor\fmt\include\fmt\ostream.h" />
-    <ClInclude Include="src\vendor\fmt\include\fmt\posix.h" />
-    <ClInclude Include="src\vendor\fmt\include\fmt\printf.h" />
-    <ClInclude Include="src\vendor\fmt\include\fmt\ranges.h" />
     <ClInclude Include="src\Tests\TestTexture.h" />
     <ClInclude Include="src\Tests\TestTransform.h" />
     <ClInclude Include="src\Tests\Test3D.h" />
     <ClInclude Include="src\Object.h" />
+    <ClInclude Include="src\Tests\TestPhong.h" />
+    <ClInclude Include="src\Material.h" />
+    <ClInclude Include="src\ObjAttrib.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\textures\dirt.png" />
@@ -490,9 +482,10 @@
     <None Include="src\vendor\glm\gtx\vector_query.inl" />
     <None Include="src\vendor\glm\gtx\wrap.inl" />
     <None Include="res\shaders\textureTest.shader" />
-    <None Include="res\shaders\Test3D.shader" />
     <None Include="res\shaders\obj.shader" />
     <None Include="res\shaders\debug.shader" />
+    <None Include="res\shaders\Gourad.shader" />
+    <None Include="res\shaders\Phong.shader" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Notes\Notes.txt" />

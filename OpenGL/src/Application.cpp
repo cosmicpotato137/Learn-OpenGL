@@ -1,16 +1,9 @@
 #include <GL/glew.h>
+
 #include <GLFW/glfw3.h>
 #include <math.h>
 #include <string>
-#include <fmt/include/fmt/core.h>
 
-#include "Renderer.h"
-#include "VertexBuffer.h"
-#include "IndexBuffer.h"
-#include "VertexArray.h"
-#include "VertexBufferLayout.h"
-#include "Shader.h"
-#include "Texture.h"
 #include "GLLog.h"
 
 #include "imgui/imgui.h"
@@ -21,12 +14,12 @@
 #include "Tests/TestTransform.h"
 #include "Tests/TestTexture.h"
 #include "Tests/Test3D.h"
+#include "Tests/TestPhong.h"
 
 using namespace test;
 
 
 // http://docs.gl/
-
 
 void ImGuiInit(GLFWwindow* window)
 {
@@ -123,6 +116,7 @@ int main(void)
     testMenu->RegisterTest<test::TestTransform2D>("2D Transform");
     testMenu->RegisterTest<test::TestTexture2D>("2D Textrue");
     testMenu->RegisterTest<test::Test3D>("3D Render");
+    testMenu->RegisterTest<test::TestPhong>("Phong Shading");
 
     float r = 0.0;
     float inc = 0.01f;

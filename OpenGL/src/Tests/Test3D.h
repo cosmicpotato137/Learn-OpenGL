@@ -37,12 +37,13 @@ namespace test {
 		glm::vec3 m_Eye, m_Up, m_Piv, m_Center;
 		float m_Amount;
 		glm::mat4 m_Proj, m_View;
-		std::unique_ptr<Object> m_Teapot;
+		std::unique_ptr<SolidObject> m_Teapot;
 
-		float m_TeapotCol[4];
+		glm::vec4 m_TeapotCol;
 		float m_LightInt;
-		float m_LightCol[4];
-		float m_AmbientCol[4];
+		float m_HighlightInt;
+		glm::vec4 m_LightCol;
+		glm::vec4 m_AmbientCol;
 	};
 }
  

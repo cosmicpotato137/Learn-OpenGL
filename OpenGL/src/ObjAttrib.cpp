@@ -9,6 +9,7 @@
 Transform::Transform(glm::vec3 pos, glm::vec3 rot, glm::vec3 scale)
 	: position(pos), rotation(rot), scale(scale)
 {
+	UpdateTransform();
 }
 
 Transform::~Transform()
@@ -27,23 +28,13 @@ void Transform::ApplyTransfInpl(glm::vec4& vec)
 	vec = transform * vec;
 }
 
-glm::vec3 Transform::operator*(glm::vec4 vec)
-{
-	return ApplyTransf(vec);
-}
-
-//glm::mat4 Transform::operator*(glm::mat4 mat4)
-//{
-//	return 
-//}
-
 //-----------------------------------
 //
 // Mesh
 //
 //-----------------------------------
 
-Mesh::Mesh(const char* filepath)
+Mesh::Mesh(std::string filepath)
 	: m_Filepath(filepath)
 {
 	Parse();
@@ -126,10 +117,93 @@ void Mesh::Parse()
 	//	m_Vertices[i] = shiftedVertex;
 	//}
 
-	for (int i = 0; i < indices.size(); i++)
+	for (unsigned int i = 0; i < inds.size(); i++)
 	{
 		vertices.push_back(verts[inds[i].x]);
 		vertices.push_back(norms[inds[i].y]);
 		indices.push_back(i);
+	}
+}
+
+//-----------------------------------
+//
+// Material
+//
+//-----------------------------------
+
+Material::Material(const std::string& shaderpath, glm::vec4 diffuse, glm::vec4 ambient, glm::vec4 lightpos,
+	glm::vec4 lightcol, float specint, glm::vec4 speccol)
+	: m_Shader(shaderpath), diffuseCol(diffuse), ambientCol(ambient), lightPos(lightpos), lightCol(lightcol),
+	specInt(specint), specCol(speccol)
+{
+
+}
+
+Material::Material(const std::string& shaderpath, const std::string& matfile)
+	: m_Shader(shaderpath)
+{
+	Parse(matfile);
+	SetShaderUniforms();
+}
+
+Material::~Material()
+{
+}
+
+void Material::SetShaderUniforms()
+{
+	m_Shader.Bind();
+	m_Shader.SetUniform4fv("u_Ambient", &ambientCol[0]);
+	m_Shader.SetUniform4fv("u_Diffuse", &diffuseCol[0]);
+	m_Shader.SetUniform4fv("u_Light", &lightCol[0]);
+	m_Shader.SetUniform4fv("u_Specular", &specCol[0]);
+	m_Shader.SetUniform1f("u_SpecInt", specInt);
+}
+
+void Material::Parse(const std::string& matfile)
+{
+	FILE* fp;
+	float hi;
+	int va, vb, vc, ignore;
+	char c1, c2;
+
+	fopen_s(&fp, matfile.c_str(), "rb");
+
+	if (fp == NULL) {
+		std::cerr << "Error loading file: " << matfile << std::endl;
+		std::getchar();
+		exit(-1);
+	}
+
+	// feof returns end of file
+	while (!feof(fp)) {
+		c1 = fgetc(fp); // returns character as int
+		while (!(c1 == 'K' || c1 == 'N' || c1 == 'd' || c1 == 'i')) {
+			c1 = fgetc(fp);
+			if (feof(fp))
+				break;
+		}
+		c2 = fgetc(fp);
+
+		// get vertices
+		if ((c1 == 'N') && (c2 == 's')) {
+			fscanf_s(fp, " %f", &hi);
+			specInt = hi;
+		}
+		// get normals
+		else if ((c1 == 'K') && (c2 == 'a')) {
+			fscanf_s(fp, " %f %f %f", &va, &vb, &vc);
+			ambientCol = glm::vec4(va, vb, vc, 1.0f);
+		}
+		else if (c1 == 'K' && c2 == 'd')
+		{
+			fscanf_s(fp, " %f %f %f", &va, &vb, &vc);
+			diffuseCol = glm::vec4(va, vb, vc, 1.0f);
+		}
+		else if (c1 == 'K' && c2 == 's')
+		{
+			fscanf_s(fp, " %f %f %f", &va, &vb, &vc);
+			specCol = glm::vec4(va, vb, vc, 1.0f);
+		}
 	}
 }

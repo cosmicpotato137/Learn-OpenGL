@@ -3,35 +3,40 @@
 
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec3 normal;
-out float v_Light;
-out float v_Highlight;
-out vec3 v_Normal;
+out vec4 v_Light;
 
 uniform mat4 u_ModelView;
 uniform mat4 u_Projection;
 
+uniform vec4 u_Diffuse;
+uniform vec4 u_Ambient;
 uniform vec3 u_LightDir;
-uniform float u_LightInt;
-uniform float u_HighlightInt;
+uniform vec4 u_Light;
+uniform vec4 u_Specular;
+uniform float u_SpecInt;
 
+vec4 ComputeLight(vec3 light_dir, vec4 light_col, vec3 normal, vec3 half_angle,
+	vec4 diffuse, vec4 spec, float spec_size)
+{
+	float light_int = max(dot(normal, -light_dir), 0.0f);
+	vec4 lambert = diffuse * light_col * light_int;
+
+	float spec_int = pow(max(dot(normal, half_angle), 0.0f), spec_size);
+	vec4 phong = spec * light_col * spec_int;
+
+	return lambert + phong;
+};
 
 void main()
 {
-	vec3 norm = normalize( vec3(transpose(inverse(u_ModelView)) * vec4(normal, 1.0f)) );
-	v_Normal = norm;
-	vec3 dir = normalize(u_LightDir);
-	vec3 lightpos = u_LightDir * -1;
+	vec3 ldir = normalize(u_LightDir);
 	vec4 pos = u_ModelView * vec4(position, 1.0f);
-	vec3 mypos = pos.xyz / pos.w;
+	vec3 hpos = pos.xyz / pos.w;
+	vec3 hlf = -normalize(ldir + hpos)
+	norm = normalize(normal);
+	light = ComputeLight(ldir, vec4 u_Light, norm, hlf, u_Diffuse, u_Specular, u_SpecInt);
 
-	// eye posn is 0
-	vec3 eye = vec3(0.0f, 0.0f, 0.0f);
-	vec3 eyedirn = normalize(eye - mypos);
-	vec3 lightdirn = normalize(lightpos - mypos);
-	vec3 hlf = normalize(normalize(u_LightDir) + normalize(mypos));
-
-	v_Light = max(-dot(norm, dir), 0.0f) * u_LightInt;
-	v_Highlight = pow(max(dot(norm, -hlf), 0.0f), u_HighlightInt);
+	v_Light = light;
 
 	gl_Position = u_Projection * u_ModelView * vec4(position, 1.0f);
 };
@@ -39,20 +44,10 @@ void main()
 #shader fragment
 #version 330 core
 
-in float v_Light;
-in float v_Highlight;
-in vec3 v_Normal;
+in vec4 v_Light;
 layout(location = 0) out vec4 color;
-
-uniform vec4 u_Model;
-uniform vec4 u_Light;
-uniform vec4 u_Ambient;
 
 void main()
 {
-	vec3 mColor = u_Model.xyz * v_Light;
-	vec3 aColor = u_Ambient.xyz;
-	vec3 lColor = u_Light.xyz * ((v_Light + v_Highlight) / 2);
-	//color = vec4(aColor + lColor + mColor, 1.0f);
-	color = vec4(v_Normal, 1.0f);
+	color = v_Light;
 };

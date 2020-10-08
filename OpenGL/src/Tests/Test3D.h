@@ -35,15 +35,8 @@ namespace test {
 		bool m_Lmb, m_Rmb;
 
 		glm::vec3 m_Eye, m_Up, m_Piv, m_Center;
-		float m_Amount;
 		glm::mat4 m_Proj, m_View;
 		std::unique_ptr<SolidObject> m_Teapot;
-
-		glm::vec4 m_TeapotCol;
-		float m_LightInt;
-		float m_HighlightInt;
-		glm::vec4 m_LightCol;
-		glm::vec4 m_AmbientCol;
 	};
 }
  

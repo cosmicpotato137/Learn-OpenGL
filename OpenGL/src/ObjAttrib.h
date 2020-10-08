@@ -4,6 +4,8 @@
 #include <string>
 #include <iostream>
 
+#include "Shader.h"
+
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
@@ -25,9 +27,6 @@ public:
 	glm::vec3 ApplyTransf(glm::vec4 vec);
 	void ApplyTransfInpl(glm::vec4& vec);
 
-	glm::vec3 operator*(glm::vec4 vec);
-	//glm::mat4 operator*(glm::mat4 mat4);
-
 	void UpdateTransform()
 	{
 		glm::mat4 sca = glm::scale(glm::mat4(1), scale);
@@ -47,7 +46,7 @@ private:
 class Mesh : public ObjAttrib
 {
 public:
-	Mesh(const char* filepath);
+	Mesh(std::string filepath);
 	~Mesh();
 
 	unsigned int Size();
@@ -61,17 +60,26 @@ public:
 	std::string m_Filepath;
 };
 
-//class Material
-//{
-//public:
-//	Material();
-//	~Material();
-//
-//public:
-//	Shader m_Shader;
-//	glm::vec4 m_Diffuse;
-//	glm::vec4 m_Ambient;
-//	glm::vec4 m_;
-//	glm::vec4 m_Ambient;
-//
-//};
+class Material : public ObjAttrib
+{
+public:
+	Material(const std::string& shaderpath, glm::vec4 diffuse, glm::vec4 ambient, glm::vec4 lightpos,
+		glm::vec4 lightcol, float specint, glm::vec4 speccol);
+
+	Material(const std::string& shaderpath, const std::string& matfile);
+	~Material();
+
+	void SetShaderUniforms();
+
+private:
+	void Parse(const std::string& matfile);
+
+public:
+	Shader m_Shader;
+	glm::vec4 diffuseCol;
+	glm::vec4 ambientCol;
+	glm::vec4 lightPos;
+	glm::vec4 lightCol;
+	float specInt;
+	glm::vec4 specCol;
+};

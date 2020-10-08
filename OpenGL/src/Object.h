@@ -22,35 +22,34 @@
 class Object
 {
 public:
-	Object(Transform t=Transform());
+	Object(const std::string& name = "", Transform& t = (Transform&)Transform());
 	~Object();
 
 	virtual void Update() {};
 	virtual void Render() {};
 
 public:
+	std::string m_Name;
 	Transform m_Transf;
 };
 
 class SolidObject : public Object
 {
 public:
-	SolidObject(std::string& name, Transform transf, Mesh mesh, std::string& shaderpath);
+	SolidObject(
+		const std::string& name, Transform& transf, Mesh& mesh, Material& mat);
 	~SolidObject();
 
 	void Render(Renderer renderer, glm::mat4 proj, glm::mat4 view);
 	void Update();
 
 public:
-	std::string m_Name;
-
-	Transform m_Transf;
 	Mesh m_Mesh;
+	Material m_Material;
 
 	std::unique_ptr<VertexArray> m_VAO;
 	std::unique_ptr<VertexBuffer> m_VertBuff;
 	std::unique_ptr<IndexBuffer> m_IndexBuff;
-	std::unique_ptr<Shader> m_Shader;
 };
 
 //class DebugObject : public Object

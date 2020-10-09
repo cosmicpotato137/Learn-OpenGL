@@ -3,6 +3,7 @@
 #include "VertexBufferLayout.h"
 #include "VertexBuffer.h"
 #include "Renderer.h"
+#include "imgui/imgui.h"
 
 //-----------------------------------
 //
@@ -52,6 +53,13 @@ SolidObject::~SolidObject()
 {
 }
 
+
+void SolidObject::OnUpdate()
+{
+	m_Material->OnUpdate();
+	m_Transf->OnUpdate();
+}
+
 void SolidObject::Render(Renderer renderer, glm::mat4 proj, glm::mat4 view)
 {
 	glm::mat4 modelview = view * m_Transf->transform;
@@ -62,8 +70,12 @@ void SolidObject::Render(Renderer renderer, glm::mat4 proj, glm::mat4 view)
 	renderer.Draw(*m_VAO, *m_IndexBuff, *(m_Material->shader));
 }
 
-void SolidObject::Update()
+void SolidObject::OnImGuiRender()
 {
-	m_Material->SetShaderUniforms();
-	m_Transf->UpdateTransform();
+	if (!ImGui::TreeNode(m_Name.c_str()))
+		return;
+	m_Transf->OnImGuiRender();
+	m_Mesh->OnImGuiRender();
+	m_Material->OnImGuiRender();
+	ImGui::TreePop();
 }

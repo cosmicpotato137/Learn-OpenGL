@@ -15,7 +15,8 @@ public:
 	ObjAttrib() {};
 	~ObjAttrib() {};
 
-	virtual void Update() {};
+	virtual void OnUpdate() {};
+	virtual void OnImGuiRender() {};
 };
 
 class Transform : public ObjAttrib
@@ -27,13 +28,10 @@ public:
 	glm::vec3 ApplyTransf(glm::vec4 vec);
 	void ApplyTransfInpl(glm::vec4& vec);
 
-	void UpdateTransform()
-	{
-		glm::mat4 sca = glm::scale(glm::mat4(1), scale);
-		glm::mat4 pos = glm::translate(glm::mat4(1), position);
-		
-		transform = sca * pos;
-	}
+	void OnUpdate() override;
+
+	void OnImGuiRender() override;
+
 public:
 	glm::vec3 position;
 	glm::vec3 scale;
@@ -50,6 +48,7 @@ public:
 	~Mesh();
 
 	unsigned int Size();
+	void OnImGuiRender() override;
 
 private:
 	void Parse();
@@ -57,6 +56,8 @@ private:
 public:
 	std::vector<glm::vec3> vertices;
 	std::vector<unsigned int> indices;
+
+private:
 	std::string m_Filepath;
 };
 
@@ -69,12 +70,14 @@ public:
 	Material(const std::string& shaderpath, const std::string& matfile, glm::vec4 lightdir);
 	~Material();
 
-	void SetShaderUniforms();
+	void OnUpdate() override;
+	void OnImGuiRender() override;
 
 private:
 	void Parse(const std::string& matfile);
 
 public:
+	std::string shaderPath;
 	std::unique_ptr<Shader> shader;
 	glm::vec4 diffuseCol;
 	glm::vec4 ambientCol;

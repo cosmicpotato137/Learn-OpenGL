@@ -1,4 +1,5 @@
 #include "ObjAttrib.h"
+#include "imgui/imgui.h"
 
 //-----------------------------------
 //
@@ -9,7 +10,7 @@
 Transform::Transform(glm::vec3 pos, glm::vec3 rot, glm::vec3 scale)
 	: position(pos), rotation(rot), scale(scale)
 {
-	UpdateTransform();
+	OnUpdate();
 }
 
 Transform::~Transform()
@@ -18,14 +19,32 @@ Transform::~Transform()
 
 glm::vec3 Transform::ApplyTransf(glm::vec4 vec)
 {
-	UpdateTransform();
+	OnUpdate();
 	return transform * vec;
 }
 
 void Transform::ApplyTransfInpl(glm::vec4& vec)
 {
-	UpdateTransform();
+	OnUpdate();
 	vec = transform * vec;
+}
+
+void Transform::OnUpdate()
+{
+	glm::mat4 sca = glm::scale(glm::mat4(1), scale);
+	glm::mat4 pos = glm::translate(glm::mat4(1), position);
+
+	transform = sca * pos;
+}
+
+void Transform::OnImGuiRender()
+{
+	if (!ImGui::TreeNode("Transform"))
+		return;
+	ImGui::InputFloat3("Position", &position[0], 3);
+	ImGui::InputFloat3("Rotation", &rotation[0], 3);
+	ImGui::InputFloat3("Scale", &scale[0], 3);
+	ImGui::TreePop();
 }
 
 //-----------------------------------
@@ -47,6 +66,16 @@ Mesh::~Mesh()
 unsigned int Mesh::Size()
 {
 	return vertices.size() * sizeof(glm::vec3);
+}
+
+void Mesh::OnImGuiRender()
+{
+	if (!ImGui::TreeNode("Mesh"))
+		return;
+	std::string file = std::string("File: ") + m_Filepath;
+	ImGui::Text(file.c_str());
+	ImGui::Text("Vertices: %i", vertices.size());
+	ImGui::TreePop();
 }
 
 void Mesh::Parse()
@@ -133,26 +162,26 @@ void Mesh::Parse()
 
 Material::Material(const std::string& shaderpath, glm::vec4 diffuse, glm::vec4 ambient, glm::vec4 lightpos,
 	glm::vec4 lightcol, float specint, glm::vec4 speccol)
-	: diffuseCol(diffuse), ambientCol(ambient), lightDir(lightpos), lightCol(lightcol),
+	: shaderPath(shaderpath), diffuseCol(diffuse), ambientCol(ambient), lightDir(lightpos), lightCol(lightcol),
 	specInt(specint), specCol(speccol)
 {
 	shader = std::make_unique<Shader>(shaderpath);
 }
 
 Material::Material(const std::string& shaderpath, const std::string& matfile, glm::vec4 lightdir)
-	: lightDir(lightdir)
+	: shaderPath(shaderpath), lightDir(lightdir)
 {
 	lightCol = glm::vec4(0.5, 0.5, 0.5, 1.0f);
 	shader = std::make_unique<Shader>(shaderpath);
 	Parse(matfile);
-	SetShaderUniforms();
+	OnUpdate();
 }
 
 Material::~Material()
 {
 }
 
-void Material::SetShaderUniforms()
+void Material::OnUpdate()
 {
 	shader->Bind();
 	shader->SetUniform4fv("u_Ambient", &ambientCol[0]);
@@ -161,6 +190,19 @@ void Material::SetShaderUniforms()
 	shader->SetUniform4fv("u_Light", &lightCol[0]);
 	shader->SetUniform4fv("u_Specular", &specCol[0]);
 	shader->SetUniform1f("u_SpecInt", specInt);
+}
+
+void Material::OnImGuiRender()
+{
+	if (!ImGui::TreeNode("Material"))
+		return;
+	ImGui::Text(shaderPath.c_str());
+	ImGui::ColorEdit4("Diffuse Color", &diffuseCol[0]);
+	ImGui::ColorEdit4("Light Color", &lightCol[0]);
+	ImGui::ColorEdit4("Ambient Color", &ambientCol[0]);
+	ImGui::ColorEdit4("Specular Color", &specCol[0]);
+	ImGui::SliderFloat("Specular Intensity", &specInt, 0.0f, 50.0f);
+	ImGui::TreePop();
 }
 
 void Material::Parse(const std::string& matfile)

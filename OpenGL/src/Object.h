@@ -25,8 +25,9 @@ public:
 	Object(const std::string& name = "", Transform& t = (Transform&)Transform());
 	~Object();
 
-	virtual void Update() {};
-	virtual void Render() {};
+	virtual void OnUpdate() {};
+	virtual void Render(Renderer renderer, glm::mat4 proj, glm::mat4 view) {};
+	virtual void OnImGuiRender() {};
 
 public:
 	std::string m_Name;
@@ -40,8 +41,9 @@ public:
 		const std::string& name, Transform& transf, Mesh& mesh, std::shared_ptr<Material> mat);
 	~SolidObject();
 
-	void Render(Renderer renderer, glm::mat4 proj, glm::mat4 view);
-	void Update();
+	void OnUpdate() override;
+	void Render(Renderer renderer, glm::mat4 proj, glm::mat4 view) override;
+	void OnImGuiRender() override;
 
 public:
 	std::unique_ptr<Mesh> m_Mesh;
@@ -58,7 +60,7 @@ public:
 //	DebugObject(std::string& name, std::string& filepath, std::string& shaderpath);
 //
 //	void Render(Renderer renderer, glm::mat4 proj, glm::mat4 view);
-//	void Update();
+//	void OnUpdate();
 //
 //public:
 //	std::string m_Name;

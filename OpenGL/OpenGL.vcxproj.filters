@@ -25,7 +25,6 @@
     <ClCompile Include="src\Tests\Test3D.cpp" />
     <ClCompile Include="src\Object.cpp" />
     <ClCompile Include="src\Tests\TestPhong.cpp" />
-    <ClCompile Include="src\Materail.cpp" />
     <ClCompile Include="src\ObjAttrib.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -335,7 +334,6 @@
     <ClInclude Include="src\Tests\Test3D.h" />
     <ClInclude Include="src\Object.h" />
     <ClInclude Include="src\Tests\TestPhong.h" />
-    <ClInclude Include="src\Material.h" />
     <ClInclude Include="src\ObjAttrib.h" />
   </ItemGroup>
   <ItemGroup>

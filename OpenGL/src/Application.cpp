@@ -51,7 +51,8 @@ void GetKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 
 void GetMouseButton(GLFWwindow* window, int button, int action, int mods)
 {
-    currentTest->MouseButtonCallback(window, button, action, mods);
+    if (!(ImGui::IsAnyWindowHovered() || ImGui::IsAnyWindowFocused()))
+        currentTest->MouseButtonCallback(window, button, action, mods);
 }
 
 void GetMousePos(GLFWwindow* window, double xpos, double ypos)
@@ -132,6 +133,9 @@ int main(void)
 
         if (currentTest)
         {
+            if (!ImGui::IsAnyWindowFocused())
+            {
+            }
             currentTest->OnUpdate(0.0f);
             currentTest->OnRender();
 

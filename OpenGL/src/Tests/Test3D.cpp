@@ -9,7 +9,7 @@ namespace test {
 		: m_W(960), m_H(540),
 		m_Eye(0.0f, 0.0f, 500), m_Up(0.0f, 1.0f, 0.0f), m_Center(0.0f, 0.0f, 0.0f)
 	{
-		GLCall(glShadeModel(GL_SMOOTH))
+		//GLCall(glShadeModel(GL_SMOOTH));
 		GLCall(glEnable(GL_DEPTH_TEST));
 		
 		m_Proj = glm::perspective(
@@ -19,9 +19,9 @@ namespace test {
 
 
 		Transform transf;
-		Mesh mesh("res/models/teapot1.obj");
+		Mesh mesh("res/models/teapot.obj");
 		glm::vec4 light(-1.0, -1.0, -1.0, 0.0f);
-		m_Mat1 = std::make_shared<Material>("res/shaders/Gourad.shader", "res/models/teapot1.mtl", light);
+		m_Mat1 = std::make_shared<Material>("res/shaders/Gourad.shader", "res/models/teapot.mtl", light);
 		m_Teapot = std::make_unique<SolidObject>("teapot", transf, mesh, m_Mat1);
 
 		m_Teapot->m_Transf->scale = glm::vec3(50, 50, 50);
@@ -39,7 +39,7 @@ namespace test {
 
 		m_View = glm::lookAt(m_Eye, m_Center, m_Up);
 
-		m_Teapot->Update();
+		m_Teapot->OnUpdate();
 	}
 
 	void Test3D::OnRender()

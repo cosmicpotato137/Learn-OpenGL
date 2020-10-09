@@ -95,7 +95,6 @@
   <ItemGroup>
     <ClCompile Include="src\GLLog.cpp" />
     <ClCompile Include="src\IndexBuffer.cpp" />
-    <ClCompile Include="src\Materail.cpp" />
     <ClCompile Include="src\Object.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\Application.cpp" />
@@ -270,7 +269,6 @@
   <ItemGroup>
     <ClInclude Include="src\GLLog.h" />
     <ClInclude Include="src\IndexBuffer.h" />
-    <ClInclude Include="src\Material.h" />
     <ClInclude Include="src\Object.h" />
     <ClInclude Include="src\Renderer.h" />
     <ClInclude Include="src\Shader.h" />

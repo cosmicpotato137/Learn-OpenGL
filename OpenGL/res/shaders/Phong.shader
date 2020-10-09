@@ -53,5 +53,5 @@ void main()
 	vec4 light = ComputeLight(u_LightDir, u_Light, normalize(v_Normal), hlf, 
 		u_Diffuse, u_Specular, u_SpecInt);
 
-	color = light + u_Ambient;
+	color = u_Ambient + light;
 };

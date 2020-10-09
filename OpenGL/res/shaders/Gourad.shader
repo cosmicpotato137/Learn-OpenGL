@@ -29,14 +29,13 @@ vec4 ComputeLight(vec3 light_dir, vec4 light_col, vec3 normal, vec3 half_angle,
 
 void main()
 {
-	vec3 ldir = normalize(u_LightDir);
 	vec4 pos = u_ModelView * vec4(position, 1.0f);
 	vec3 hpos = pos.xyz / pos.w;
-	vec3 hlf = -normalize(ldir + hpos)
-	norm = normalize(normal);
-	light = ComputeLight(ldir, vec4 u_Light, norm, hlf, u_Diffuse, u_Specular, u_SpecInt);
+	vec3 hlf = -normalize(normalize(u_LightDir) + normalize(hpos));
+	vec4 light = ComputeLight(u_LightDir, u_Light, normalize(normal), hlf,
+		u_Diffuse, u_Specular, u_SpecInt);
 
-	v_Light = light;
+	v_Light = u_Ambient + light;
 
 	gl_Position = u_Projection * u_ModelView * vec4(position, 1.0f);
 };

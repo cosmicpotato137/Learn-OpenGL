@@ -133,15 +133,17 @@ void Mesh::Parse()
 
 Material::Material(const std::string& shaderpath, glm::vec4 diffuse, glm::vec4 ambient, glm::vec4 lightpos,
 	glm::vec4 lightcol, float specint, glm::vec4 speccol)
-	: m_Shader(shaderpath), diffuseCol(diffuse), ambientCol(ambient), lightPos(lightpos), lightCol(lightcol),
+	: diffuseCol(diffuse), ambientCol(ambient), lightDir(lightpos), lightCol(lightcol),
 	specInt(specint), specCol(speccol)
 {
-
+	shader = std::make_unique<Shader>(shaderpath);
 }
 
-Material::Material(const std::string& shaderpath, const std::string& matfile)
-	: m_Shader(shaderpath)
+Material::Material(const std::string& shaderpath, const std::string& matfile, glm::vec4 lightdir)
+	: lightDir(lightdir)
 {
+	lightCol = glm::vec4(0.5, 0.5, 0.5, 1.0f);
+	shader = std::make_unique<Shader>(shaderpath);
 	Parse(matfile);
 	SetShaderUniforms();
 }
@@ -152,19 +154,20 @@ Material::~Material()
 
 void Material::SetShaderUniforms()
 {
-	m_Shader.Bind();
-	m_Shader.SetUniform4fv("u_Ambient", &ambientCol[0]);
-	m_Shader.SetUniform4fv("u_Diffuse", &diffuseCol[0]);
-	m_Shader.SetUniform4fv("u_Light", &lightCol[0]);
-	m_Shader.SetUniform4fv("u_Specular", &specCol[0]);
-	m_Shader.SetUniform1f("u_SpecInt", specInt);
+	shader->Bind();
+	shader->SetUniform4fv("u_Ambient", &ambientCol[0]);
+	shader->SetUniform4fv("u_Diffuse", &diffuseCol[0]);
+	shader->SetUniform3fv("u_LightDir", &lightDir[0]);
+	shader->SetUniform4fv("u_Light", &lightCol[0]);
+	shader->SetUniform4fv("u_Specular", &specCol[0]);
+	shader->SetUniform1f("u_SpecInt", specInt);
 }
 
 void Material::Parse(const std::string& matfile)
 {
 	FILE* fp;
 	float hi;
-	int va, vb, vc, ignore;
+	float va, vb, vc, ignore;
 	char c1, c2;
 
 	fopen_s(&fp, matfile.c_str(), "rb");

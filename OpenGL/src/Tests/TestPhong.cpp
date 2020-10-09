@@ -20,9 +20,10 @@ namespace test {
 
 		Transform transf;
 		Mesh mesh("res/models/teapot.obj");
-		Material mat("res/shaders/Phong.shader", "res/models/teapot.mtl");
-		m_Teapot = std::make_unique<SolidObject>("teapot", transf, mesh, mat);
-		m_Teapot->m_Transf.scale = glm::vec3(50, 50, 50);
+		glm::vec4 light(-1.0, -1.0, -1.0, 0.0f);
+		m_Mat1 = std::make_shared<Material>("res/shaders/Phong.shader", "res/models/teapot.mtl", light);
+		m_Teapot = std::make_unique<SolidObject>("teapot", transf, mesh, m_Mat1);
+		m_Teapot->m_Transf->scale = glm::vec3(50, 50, 50);
 	}
 
 	TestPhong::~TestPhong()
@@ -33,7 +34,7 @@ namespace test {
 	void TestPhong::OnUpdate(float deltaTime)
 	{
 		glm::vec4 light(-1.0, -1.0, -1.0, 0.0f);
-		m_Teapot->m_Material.lightPos = m_View * light;
+		m_Teapot->m_Material->lightDir = m_View * light;
 
 		m_View = glm::lookAt(m_Eye, m_Center, m_Up);
 
@@ -52,14 +53,14 @@ namespace test {
 
 	void TestPhong::OnImGuiRender()
 	{
-		ImGui::SliderFloat3("Model", &m_Teapot->m_Transf.position.x, -100.0f, 100.0f);
-		ImGui::SliderFloat3("Scale", &m_Teapot->m_Transf.scale.x, 0.0f, 100.0f);
+		ImGui::SliderFloat3("Model", &m_Teapot->m_Transf->position.x, -100.0f, 100.0f);
+		ImGui::SliderFloat3("Scale", &m_Teapot->m_Transf->scale.x, 0.0f, 100.0f);
 
-		ImGui::ColorEdit4("Model Color", &m_Teapot->m_Material.diffuseCol[0]);
-		ImGui::ColorEdit4("Light Color", &m_Teapot->m_Material.lightCol[0]);
-		ImGui::ColorEdit4("Ambient Color", &m_Teapot->m_Material.ambientCol[0]);
-		ImGui::ColorEdit4("Specular Color", &m_Teapot->m_Material.specCol[0]);
-		ImGui::SliderFloat("Specular Color", &m_Teapot->m_Material.specInt, 0.0f, 50.0f);
+		ImGui::ColorEdit4("Model Color", &m_Teapot->m_Material->diffuseCol[0]);
+		ImGui::ColorEdit4("Light Color", &m_Teapot->m_Material->lightCol[0]);
+		ImGui::ColorEdit4("Ambient Color", &m_Teapot->m_Material->ambientCol[0]);
+		ImGui::ColorEdit4("Specular Color", &m_Teapot->m_Material->specCol[0]);
+		ImGui::SliderFloat("Specular Color", &m_Teapot->m_Material->specInt, 0.0f, 50.0f);
 
 		glm::vec4 camera = m_View * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 		ImGui::Text("Camera Position (%f, %f, %f)", -camera.x, -camera.y, -camera.z);

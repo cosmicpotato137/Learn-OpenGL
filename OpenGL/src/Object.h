@@ -30,22 +30,22 @@ public:
 
 public:
 	std::string m_Name;
-	Transform m_Transf;
+	std::unique_ptr<Transform> m_Transf;
 };
 
 class SolidObject : public Object
 {
 public:
 	SolidObject(
-		const std::string& name, Transform& transf, Mesh& mesh, Material& mat);
+		const std::string& name, Transform& transf, Mesh& mesh, std::shared_ptr<Material> mat);
 	~SolidObject();
 
 	void Render(Renderer renderer, glm::mat4 proj, glm::mat4 view);
 	void Update();
 
 public:
-	Mesh m_Mesh;
-	Material m_Material;
+	std::unique_ptr<Mesh> m_Mesh;
+	std::shared_ptr<Material> m_Material;
 
 	std::unique_ptr<VertexArray> m_VAO;
 	std::unique_ptr<VertexBuffer> m_VertBuff;

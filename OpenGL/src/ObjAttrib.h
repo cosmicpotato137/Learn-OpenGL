@@ -66,7 +66,7 @@ public:
 	Material(const std::string& shaderpath, glm::vec4 diffuse, glm::vec4 ambient, glm::vec4 lightpos,
 		glm::vec4 lightcol, float specint, glm::vec4 speccol);
 
-	Material(const std::string& shaderpath, const std::string& matfile);
+	Material(const std::string& shaderpath, const std::string& matfile, glm::vec4 lightdir);
 	~Material();
 
 	void SetShaderUniforms();
@@ -75,10 +75,10 @@ private:
 	void Parse(const std::string& matfile);
 
 public:
-	Shader m_Shader;
+	std::unique_ptr<Shader> shader;
 	glm::vec4 diffuseCol;
 	glm::vec4 ambientCol;
-	glm::vec4 lightPos;
+	glm::vec4 lightDir;
 	glm::vec4 lightCol;
 	float specInt;
 	glm::vec4 specCol;

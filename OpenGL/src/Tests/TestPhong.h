@@ -38,7 +38,7 @@ namespace test {
 		glm::mat4 m_Proj, m_View;
 
 		std::shared_ptr<VertexArray> m_VAO;
-		std::unique_ptr<SceneObject> m_Teapot;
+		std::unique_ptr<Object> m_Teapot;
 
 		std::shared_ptr<Material> m_Mat1;
 	};

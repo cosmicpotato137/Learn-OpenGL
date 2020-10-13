@@ -5,6 +5,7 @@
 #include <string>
 #include <sstream>
 #include <iostream>
+#include <unordered_map>
 
 #include "VertexArray.h"
 #include "VertexBufferLayout.h"
@@ -22,37 +23,25 @@
 class Object
 {
 public:
-	Object(const std::string& name = "", const Transform& t = (Transform&)Transform());
+	Object(const std::string& name);
 	~Object();
 
-	virtual void OnUpdate() {};
-	virtual void Render(Renderer renderer, glm::mat4 proj, glm::mat4 view) {};
-	virtual void OnImGuiRender() {};
+	void OnUpdate();
+	void Render(Renderer renderer, glm::mat4 proj, glm::mat4 view);
+	void OnImGuiRender();
+	
+	template <typename T>
+	bool DelAttrib();
+
+	template <typename T>
+	T* GetAttrib();
+
+	void SetAttrib(std::shared_ptr<ObjAttrib> attrib);
 
 public:
 	std::string m_Name;
-	std::unique_ptr<Transform> m_Transf;
-};
-
-class SceneObject : public Object
-{
-public:
-	SceneObject(
-		const std::string& name, const Transform& transf, std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> mat);
-	~SceneObject();
-
-	void OnUpdate() override;
-	void Render(Renderer renderer, glm::mat4 proj, glm::mat4 view) override;
-	void OnImGuiRender() override;
-
-	void AddAttribute(const ObjAttrib& attrib);
-
-public:
-	std::shared_ptr<Mesh> m_Mesh;
-	std::shared_ptr<Material> m_Material;
-
 private:
-	std::unique_ptr<std::vector<ObjAttrib>> m_Attributes;
+	std::unordered_map<std::string, std::shared_ptr<ObjAttrib>> m_Attributes;
 };
 
 //class DebugObject : public Object

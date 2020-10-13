@@ -20,12 +20,18 @@ namespace test {
 
 		m_VAO = std::make_shared<VertexArray>();
 
-		Transform transf;
-		Light light(glm::vec4(-1, -1, -1, 0), glm::vec4(1, 1, 1, 1), 1);
-		std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>(std::string("res/models/teapot.obj"), m_VAO);
+		std::shared_ptr<Transform> transf = std::make_shared<Transform>();
+		//std::shared_ptr<Light> light = std::make_shared<Light>(glm::vec4(-1, -1, -1, 0), glm::vec4(1, 1, 1, 1), 1);
+		std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>(std::string("res/models/box.obj"), m_VAO);
 		m_Mat1 = std::make_shared<Material>("Regular", "res/shaders/Phong.shader", "res/models/teapot.mtl");
-		m_Teapot = std::make_unique<SceneObject>("teapot", transf, mesh, m_Mat1);
-		m_Teapot->m_Transf->scale = glm::vec3(50, 50, 50);
+		
+		m_Teapot = std::make_unique<Object>("teapot");
+		m_Teapot->SetAttrib(transf);
+		//m_Teapot->SetAttrib(light);
+		m_Teapot->SetAttrib(mesh);
+		m_Teapot->SetAttrib(m_Mat1);
+
+		m_Teapot->GetAttrib<Transform>()->scale = glm::vec3(50, 50, 50);
 
 		OnUpdate(0.0f);
 		OnRender();

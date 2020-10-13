@@ -48,9 +48,12 @@ void main()
 	//vec3 hlf = normalize(normalize(u_LightDir) + normalize(mypos));
 	//v_Highlight = pow(max(dot(norm, -hlf), 0.0f), u_HighlightInt);
 
+	vec3 lightpos = vec3(-1, -1, -1);
+	vec4 lightcol = vec4(1, 1, 1, 1);
+
 	vec3 pos = v_Position.xyz / v_Position.w;
 	vec3 hlf = -normalize(normalize(u_LightDir) + normalize(pos));
-	vec4 light = ComputeLight(u_LightDir, u_Light, normalize(v_Normal), hlf, 
+	vec4 light = ComputeLight(lightpos, lightcol, normalize(v_Normal), hlf, 
 		u_Diffuse, u_Specular, u_SpecInt);
 
 	color = u_Ambient + light;

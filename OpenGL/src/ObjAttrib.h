@@ -59,6 +59,7 @@ private:
 	void Parse();
 
 public:
+	std::shared_ptr<VertexArray> VAO;
 	std::unique_ptr<VertexBuffer> VB;
 	std::unique_ptr<VertexBufferLayout> VBL;
 	std::unique_ptr<IndexBuffer> IB;

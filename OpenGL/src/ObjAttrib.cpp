@@ -69,7 +69,7 @@ Light::~Light()
 //-----------------------------------
 
 Mesh::Mesh(const std::string& fp, std::shared_ptr<VertexArray> vao)
-	: filepath(fp)
+	: filepath(fp), VAO(vao)
 {
 	Parse();
 

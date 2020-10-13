@@ -22,7 +22,7 @@
 class Object
 {
 public:
-	Object(const std::string& name = "", Transform& t = (Transform&)Transform());
+	Object(const std::string& name = "", const Transform& t = (Transform&)Transform());
 	~Object();
 
 	virtual void OnUpdate() {};
@@ -34,24 +34,25 @@ public:
 	std::unique_ptr<Transform> m_Transf;
 };
 
-class SolidObject : public Object
+class SceneObject : public Object
 {
 public:
-	SolidObject(
-		const std::string& name, Transform& transf, Mesh& mesh, std::shared_ptr<Material> mat);
-	~SolidObject();
+	SceneObject(
+		const std::string& name, const Transform& transf, std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> mat);
+	~SceneObject();
 
 	void OnUpdate() override;
 	void Render(Renderer renderer, glm::mat4 proj, glm::mat4 view) override;
 	void OnImGuiRender() override;
 
+	void AddAttribute(const ObjAttrib& attrib);
+
 public:
-	std::unique_ptr<Mesh> m_Mesh;
+	std::shared_ptr<Mesh> m_Mesh;
 	std::shared_ptr<Material> m_Material;
 
-	std::unique_ptr<VertexArray> m_VAO;
-	std::unique_ptr<VertexBuffer> m_VertBuff;
-	std::unique_ptr<IndexBuffer> m_IndexBuff;
+private:
+	std::unique_ptr<std::vector<ObjAttrib>> m_Attributes;
 };
 
 //class DebugObject : public Object

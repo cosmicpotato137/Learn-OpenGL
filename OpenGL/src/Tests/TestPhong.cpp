@@ -18,11 +18,13 @@ namespace test {
 		);
 		m_View = glm::lookAt(m_Eye, m_Center, m_Up);
 
+		m_VAO = std::make_shared<VertexArray>();
+
 		Transform transf;
-		Mesh mesh("res/models/teapot.obj");
-		glm::vec4 light(-1.0, -1.0, -1.0, 0.0f);
-		m_Mat1 = std::make_shared<Material>("res/shaders/Phong.shader", "res/models/teapot.mtl", light);
-		m_Teapot = std::make_unique<SolidObject>("teapot", transf, mesh, m_Mat1);
+		Light light(glm::vec4(-1, -1, -1, 0), glm::vec4(1, 1, 1, 1), 1);
+		std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>(std::string("res/models/teapot.obj"), m_VAO);
+		m_Mat1 = std::make_shared<Material>("Regular", "res/shaders/Phong.shader", "res/models/teapot.mtl");
+		m_Teapot = std::make_unique<SceneObject>("teapot", transf, mesh, m_Mat1);
 		m_Teapot->m_Transf->scale = glm::vec3(50, 50, 50);
 
 		OnUpdate(0.0f);
@@ -36,8 +38,6 @@ namespace test {
 
 	void TestPhong::OnUpdate(float deltaTime)
 	{
-		glm::vec4 light(-1.0, -1.0, -1.0, 0.0f);
-		m_Teapot->m_Material->lightDir = m_View * light;
 
 		m_View = glm::lookAt(m_Eye, m_Center, m_Up);
 

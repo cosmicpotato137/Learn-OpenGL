@@ -11,7 +11,7 @@
 //
 //-----------------------------------
 
-Object::Object(const std::string& name, Transform& t)
+Object::Object(const std::string& name, const Transform& t)
 	: m_Name(name)
 {
 	m_Transf = std::make_unique<Transform>(t);
@@ -23,54 +23,35 @@ Object::~Object()
 
 //-----------------------------------
 //
-// Solid Object - renderable
+// Scene Object
 // 
 //-----------------------------------
 
-SolidObject::SolidObject(const std::string& name, Transform& transf, Mesh& mesh, std::shared_ptr<Material> mat)
-	: Object(name, transf), m_Material(mat)
-{
-	m_Mesh = std::make_unique<Mesh>(mesh);
-
-	m_VAO = std::make_unique<VertexArray>();
-
-	// vertex position buffer
-	{
-		m_VertBuff = std::make_unique<VertexBuffer>(&m_Mesh->vertices[0], m_Mesh->Size());
-		VertexBufferLayout layout;
-		layout.Push<glm::vec3>(2); // vertex positions
-		m_VAO->AddBuffer(*m_VertBuff, layout);
-	}
-
-	m_IndexBuff = std::make_unique<IndexBuffer>(&m_Mesh->indices[0], m_Mesh->indices.size());
-
-	m_VAO->Unbind();
-	m_VertBuff->Unbind();
-	m_IndexBuff->Unbind();	
-}
-
-SolidObject::~SolidObject()
+SceneObject::SceneObject(const std::string& name, const Transform& transf, std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> mat)
+	: Object(name, transf), m_Mesh(mesh), m_Material(mat)
 {
 }
 
+SceneObject::~SceneObject()
+{
+}
 
-void SolidObject::OnUpdate()
+void SceneObject::OnUpdate()
 {
 	m_Material->OnUpdate();
 	m_Transf->OnUpdate();
 }
 
-void SolidObject::Render(Renderer renderer, glm::mat4 proj, glm::mat4 view)
+void SceneObject::Render(Renderer renderer, glm::mat4 proj, glm::mat4 view)
 {
 	glm::mat4 modelview = view * m_Transf->transform;
 
 	m_Material->shader->Bind();
 	m_Material->shader->SetUniformMat4f("u_ModelView", modelview);
 	m_Material->shader->SetUniformMat4f("u_Projection", proj);
-	renderer.Draw(*m_VAO, *m_IndexBuff, *(m_Material->shader));
 }
 
-void SolidObject::OnImGuiRender()
+void SceneObject::OnImGuiRender()
 {
 	if (!ImGui::TreeNode(m_Name.c_str()))
 		return;
@@ -78,4 +59,9 @@ void SolidObject::OnImGuiRender()
 	m_Mesh->OnImGuiRender();
 	m_Material->OnImGuiRender();
 	ImGui::TreePop();
+}
+
+void SceneObject::AddAttribute(const ObjAttrib& attrib)
+{
+	m_Attributes->push_back(attrib);
 }

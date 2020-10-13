@@ -13,7 +13,7 @@
 #include "Tests/TestClearColor.h"
 #include "Tests/TestTransform.h"
 #include "Tests/TestTexture.h"
-#include "Tests/Test3D.h"
+//#include "Tests/Test3D.h"
 #include "Tests/TestPhong.h"
 
 using namespace test;
@@ -116,7 +116,7 @@ int main(void)
     testMenu->RegisterTest<test::TestClearColor>("Clear Color");
     testMenu->RegisterTest<test::TestTransform2D>("2D Transform");
     testMenu->RegisterTest<test::TestTexture2D>("2D Textrue");
-    testMenu->RegisterTest<test::Test3D>("3D Render");
+    //testMenu->RegisterTest<test::Test3D>("3D Render");
     testMenu->RegisterTest<test::TestPhong>("Phong Shading");
 
     float r = 0.0;

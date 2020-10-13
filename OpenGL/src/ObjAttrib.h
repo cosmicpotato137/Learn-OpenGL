@@ -9,6 +9,11 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
+#include "VertexArray.h"
+#include "VertexBuffer.h"
+#include "VertexBufferLayout.h"
+#include "IndexBuffer.h"
+
 class ObjAttrib
 {
 public:
@@ -44,7 +49,7 @@ private:
 class Mesh : public ObjAttrib
 {
 public:
-	Mesh(std::string filepath);
+	Mesh(const std::string& filepath, std::shared_ptr<VertexArray> vao);
 	~Mesh();
 
 	unsigned int Size();
@@ -54,35 +59,68 @@ private:
 	void Parse();
 
 public:
-	std::vector<glm::vec3> vertices;
-	std::vector<unsigned int> indices;
+	std::unique_ptr<VertexBuffer> VB;
+	std::unique_ptr<VertexBufferLayout> VBL;
+	std::unique_ptr<IndexBuffer> IB;
+	std::string filepath;
 
 private:
-	std::string m_Filepath;
+	std::vector<glm::vec3> vertices;
+	std::vector<unsigned int> indices;
+};
+
+class Light : public ObjAttrib
+{
+public:
+	Light(glm::vec4 lightdir, glm::vec4 lightcol, float lightint);
+	~Light();
+
+public:
+	glm::vec4 lightDir;
+	glm::vec4 lightCol;
+	float lightInt;
 };
 
 class Material : public ObjAttrib
 {
 public:
-	Material(const std::string& shaderpath, glm::vec4 diffuse, glm::vec4 ambient, glm::vec4 lightpos,
-		glm::vec4 lightcol, float specint, glm::vec4 speccol);
+	Material(const std::string& name, const std::string& shaderpath, 
+		glm::vec4 diffuse, glm::vec4 ambient, float specint, glm::vec4 speccol);
 
-	Material(const std::string& shaderpath, const std::string& matfile, glm::vec4 lightdir);
+	Material(const std::string& name, const std::string& shaderpath, const std::string& matpath);
 	~Material();
 
 	void OnUpdate() override;
 	void OnImGuiRender() override;
 
+	void AddLight(const Light& light);
 private:
 	void Parse(const std::string& matfile);
 
 public:
+	std::string name;
 	std::string shaderPath;
+	std::string materialPath;
+
 	std::unique_ptr<Shader> shader;
 	glm::vec4 diffuseCol;
 	glm::vec4 ambientCol;
-	glm::vec4 lightDir;
-	glm::vec4 lightCol;
 	float specInt;
 	glm::vec4 specCol;
+	std::vector<Light> lights;
+};
+
+class MeshRenderer : public ObjAttrib
+{
+public:
+	MeshRenderer(Mesh* m, Material* mat, const bool& islit=true);
+	~MeshRenderer();
+
+	void OnUpdate() override;
+	void OnImGuiRender() override;
+
+public:
+	Mesh* mesh;
+	Material* material;
+	bool isLit;
 };

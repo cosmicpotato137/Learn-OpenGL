@@ -36,7 +36,9 @@ namespace test {
 
 		glm::vec3 m_Eye, m_Up, m_Piv, m_Center;
 		glm::mat4 m_Proj, m_View;
-		std::unique_ptr<SolidObject> m_Teapot;
+
+		std::shared_ptr<VertexArray> m_VAO;
+		std::unique_ptr<SceneObject> m_Teapot;
 
 		std::shared_ptr<Material> m_Mat1;
 	};

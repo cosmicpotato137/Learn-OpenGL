@@ -49,14 +49,36 @@ void Transform::OnImGuiRender()
 
 //-----------------------------------
 //
+// Light
+//
+//-----------------------------------
+
+Light::Light(glm::vec4 lightdir, glm::vec4 lightcol, float lightint)
+	: lightDir(lightdir), lightCol(lightcol), lightInt(lightint)
+{
+}
+
+Light::~Light()
+{
+}
+
+//-----------------------------------
+//
 // Mesh
 //
 //-----------------------------------
 
-Mesh::Mesh(std::string filepath)
-	: m_Filepath(filepath)
+Mesh::Mesh(const std::string& fp, std::shared_ptr<VertexArray> vao)
+	: filepath(fp)
 {
 	Parse();
+
+	VB = std::make_unique<VertexBuffer>(&vertices[0], vertices.size());
+	VBL = std::make_unique<VertexBufferLayout>();
+	VBL->Push<glm::vec3>(2); // vertex positions
+	vao->AddBuffer(*VB, *VBL);
+
+	IB = std::make_unique<IndexBuffer>(&indices[0], indices.size());
 }
 
 Mesh::~Mesh()
@@ -72,7 +94,7 @@ void Mesh::OnImGuiRender()
 {
 	if (!ImGui::TreeNode("Mesh"))
 		return;
-	std::string file = std::string("File: ") + m_Filepath;
+	std::string file = std::string("File: ") + filepath;
 	ImGui::Text(file.c_str());
 	ImGui::Text("Vertices: %i", vertices.size());
 	ImGui::TreePop();
@@ -91,10 +113,10 @@ void Mesh::Parse()
 	std::vector<glm::vec3> norms;
 	std::vector<glm::vec2> inds;
 
-	fopen_s(&fp, m_Filepath.c_str(), "rb");
+	fopen_s(&fp, filepath.c_str(), "rb");
 
 	if (fp == NULL) {
-		std::cerr << "Error loading file: " << m_Filepath << std::endl;
+		std::cerr << "Error loading file: " << filepath << std::endl;
 		std::getchar();
 		exit(-1);
 	}
@@ -160,20 +182,20 @@ void Mesh::Parse()
 //
 //-----------------------------------
 
-Material::Material(const std::string& shaderpath, glm::vec4 diffuse, glm::vec4 ambient, glm::vec4 lightpos,
-	glm::vec4 lightcol, float specint, glm::vec4 speccol)
-	: shaderPath(shaderpath), diffuseCol(diffuse), ambientCol(ambient), lightDir(lightpos), lightCol(lightcol),
-	specInt(specint), specCol(speccol)
+Material::Material(const std::string& name, const std::string& shaderpath,
+	glm::vec4 diffuse, glm::vec4 ambient, float specint, glm::vec4 speccol)
+	: name(name), shaderPath(shaderpath), diffuseCol(diffuse), 
+	ambientCol(ambient), specInt(specint), specCol(speccol)
 {
 	shader = std::make_unique<Shader>(shaderpath);
+	OnUpdate();
 }
 
-Material::Material(const std::string& shaderpath, const std::string& matfile, glm::vec4 lightdir)
-	: shaderPath(shaderpath), lightDir(lightdir)
+Material::Material(const std::string& name, const std::string& shaderpath, const std::string& matpath)
+	: name(name), shaderPath(shaderpath), materialPath(matpath)
 {
-	lightCol = glm::vec4(0.5, 0.5, 0.5, 1.0f);
 	shader = std::make_unique<Shader>(shaderpath);
-	Parse(matfile);
+	Parse(matpath);
 	OnUpdate();
 }
 
@@ -186,8 +208,7 @@ void Material::OnUpdate()
 	shader->Bind();
 	shader->SetUniform4fv("u_Ambient", &ambientCol[0]);
 	shader->SetUniform4fv("u_Diffuse", &diffuseCol[0]);
-	shader->SetUniform3fv("u_LightDir", &lightDir[0]);
-	shader->SetUniform4fv("u_Light", &lightCol[0]);
+
 	shader->SetUniform4fv("u_Specular", &specCol[0]);
 	shader->SetUniform1f("u_SpecInt", specInt);
 }
@@ -198,11 +219,15 @@ void Material::OnImGuiRender()
 		return;
 	ImGui::Text(shaderPath.c_str());
 	ImGui::ColorEdit4("Diffuse Color", &diffuseCol[0]);
-	ImGui::ColorEdit4("Light Color", &lightCol[0]);
 	ImGui::ColorEdit4("Ambient Color", &ambientCol[0]);
 	ImGui::ColorEdit4("Specular Color", &specCol[0]);
 	ImGui::SliderFloat("Specular Intensity", &specInt, 0.0f, 50.0f);
 	ImGui::TreePop();
+}
+
+void Material::AddLight(const Light& light)
+{
+	lights.push_back(light);
 }
 
 void Material::Parse(const std::string& matfile)
@@ -251,4 +276,35 @@ void Material::Parse(const std::string& matfile)
 			specCol = glm::vec4(va, vb, vc, 1.0f);
 		}
 	}
+}
+
+//-----------------------------------
+//
+// Mesh Renderer
+//
+//-----------------------------------
+
+MeshRenderer::MeshRenderer(Mesh* m, Material* mat, const bool& islit)
+	: mesh(m), material(mat), isLit(islit)
+{
+}
+
+MeshRenderer::~MeshRenderer()
+{
+}
+
+void MeshRenderer::OnUpdate()
+{
+
+}
+
+void MeshRenderer::OnImGuiRender()
+{
+	if (!ImGui::TreeNode("Mesh Renderer"))
+		return;
+	std::string namestr = std::string("Material: ") + material->name;
+	ImGui::Text(namestr.c_str());
+	ImGui::Checkbox("Lighting", &isLit);
+
+	ImGui::TreePop();
 }

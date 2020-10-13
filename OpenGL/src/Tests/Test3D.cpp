@@ -22,7 +22,7 @@ namespace test {
 		Mesh mesh("res/models/teapot.obj");
 		glm::vec4 light(-1.0, -1.0, -1.0, 0.0f);
 		m_Mat1 = std::make_shared<Material>("res/shaders/Gourad.shader", "res/models/teapot.mtl", light);
-		m_Teapot = std::make_unique<SolidObject>("teapot", transf, mesh, m_Mat1);
+		m_Teapot = std::make_unique<SceneObject>("teapot", transf, mesh, m_Mat1);
 
 		m_Teapot->m_Transf->scale = glm::vec3(50, 50, 50);
 	}

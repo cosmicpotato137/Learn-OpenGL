@@ -73,7 +73,7 @@ Mesh::Mesh(const std::string& fp, std::shared_ptr<VertexArray> vao)
 {
 	Parse();
 
-	VB = std::make_unique<VertexBuffer>(&vertices[0], vertices.size());
+	VB = std::make_unique<VertexBuffer>(&vertices[0], Size());
 	VBL = std::make_unique<VertexBufferLayout>();
 	VBL->Push<glm::vec3>(2); // vertex positions
 	vao->AddBuffer(*VB, *VBL);

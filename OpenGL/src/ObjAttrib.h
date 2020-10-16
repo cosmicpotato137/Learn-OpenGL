@@ -14,6 +14,9 @@
 #include "VertexBufferLayout.h"
 #include "IndexBuffer.h"
 
+// foreward declaring the object class to avoid infinite inclusion
+class Object;
+
 class ObjAttrib
 {
 public:
@@ -88,13 +91,12 @@ public:
 	Material(const std::string& name, const std::string& shaderpath, 
 		glm::vec4 diffuse, glm::vec4 ambient, float specint, glm::vec4 speccol);
 
-	Material(const std::string& name, const std::string& shaderpath, const std::string& matpath);
+	Material(const std::string& name, const std::string& shaderpath, const std::string& matpath, std::vector<std::shared_ptr<Object>>* lts);
 	~Material();
 
 	void OnUpdate() override;
 	void OnImGuiRender() override;
 
-	void AddLight(const Light& light);
 private:
 	void Parse(const std::string& matfile);
 
@@ -108,20 +110,20 @@ public:
 	glm::vec4 ambientCol;
 	float specInt;
 	glm::vec4 specCol;
-	std::vector<Light> lights;
+	std::vector<std::shared_ptr<Object>>* lights;
 };
 
-class MeshRenderer : public ObjAttrib
-{
-public:
-	MeshRenderer(Mesh* m, Material* mat, const bool& islit=true);
-	~MeshRenderer();
-
-	void OnUpdate() override;
-	void OnImGuiRender() override;
-
-public:
-	Mesh* mesh;
-	Material* material;
-	bool isLit;
-};
+//class MeshRenderer : public ObjAttrib
+//{
+//public:
+//	MeshRenderer(Mesh* m, Material* mat, const bool& islit=true);
+//	~MeshRenderer();
+//
+//	void OnUpdate() override;
+//	void OnImGuiRender() override;
+//
+//public:
+//	Mesh* mesh;
+//	Material* material;
+//	bool isLit;
+//};

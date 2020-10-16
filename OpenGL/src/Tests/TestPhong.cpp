@@ -18,12 +18,24 @@ namespace test {
 		);
 		m_View = glm::lookAt(m_Eye, m_Center, m_Up);
 
+		// lights
+		{
+			//m_Lights = std::make_shared<std::vector<std::shared_ptr<Object>>>();
+			m_Lights = new std::vector<std::shared_ptr<Object>>();
+			std::shared_ptr<Transform> transf1 = std::make_shared<Transform>(glm::vec3(1, 1, 1));
+			std::shared_ptr<Light> l1 = std::make_shared<Light>(glm::vec4(-1, -1, -1, 0), glm::vec4(1, 1, 1, 1), 1.0f);
+			std::shared_ptr<Object> light1 = std::make_shared<Object>("Light 1");
+			light1->SetAttrib(transf1);
+			light1->SetAttrib(l1);
+			m_Lights->push_back(light1);
+		}
+
 		m_VAO = std::make_shared<VertexArray>();
 
 		std::shared_ptr<Transform> transf = std::make_shared<Transform>();
 		//std::shared_ptr<Light> light = std::make_shared<Light>(glm::vec4(-1, -1, -1, 0), glm::vec4(1, 1, 1, 1), 1);
 		std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>(std::string("res/models/box.obj"), m_VAO);
-		m_Mat1 = std::make_shared<Material>("Regular", "res/shaders/Phong.shader", "res/models/teapot.mtl");
+		m_Mat1 = std::make_shared<Material>("Regular", "res/shaders/Phong.shader", "res/models/teapot.mtl", m_Lights);
 		
 		m_Teapot = std::make_unique<Object>("teapot");
 		m_Teapot->SetAttrib(transf);
@@ -33,19 +45,27 @@ namespace test {
 
 		m_Teapot->GetAttrib<Transform>()->scale = glm::vec3(50, 50, 50);
 
+
 		OnUpdate(0.0f);
 		OnRender();
 	}
 
 	TestPhong::~TestPhong()
 	{
+		delete m_Lights;
 		GLCall(glDisable(GL_DEPTH_TEST));
 	}
 
 	void TestPhong::OnUpdate(float deltaTime)
 	{
-
 		m_View = glm::lookAt(m_Eye, m_Center, m_Up);
+		glm::vec4 newdir = m_View* m_Lights->operator[](0)->GetAttrib<Light>()->lightDir;
+		m_Lights->operator[](0)->GetAttrib<Light>()->lightDir = newdir;
+		//for (auto it = m_Lights->begin(); it < m_Lights->end(); ++it)
+		//{
+		//	auto dir = m_View * (*it)->GetAttrib<Light>()->lightDir;
+		//	(*it)->GetAttrib<Light>()->lightDir = dir;
+		//}
 
 		m_Teapot->OnUpdate();
 	}

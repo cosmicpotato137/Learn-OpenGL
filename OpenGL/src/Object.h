@@ -34,7 +34,7 @@ public:
 	bool DelAttrib();
 
 	template <typename T>
-	T* GetAttrib();
+	std::shared_ptr<T> GetAttrib();
 
 	void SetAttrib(std::shared_ptr<ObjAttrib> attrib);
 

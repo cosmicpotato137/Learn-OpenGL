@@ -1,4 +1,5 @@
 #include "ObjAttrib.h"
+#include "Object.h"
 #include "imgui/imgui.h"
 
 //-----------------------------------
@@ -191,11 +192,12 @@ Material::Material(const std::string& name, const std::string& shaderpath,
 	OnUpdate();
 }
 
-Material::Material(const std::string& name, const std::string& shaderpath, const std::string& matpath)
-	: name(name), shaderPath(shaderpath), materialPath(matpath)
+Material::Material(const std::string& name, const std::string& shaderpath, const std::string& matpath, std::vector<std::shared_ptr<Object>>* lts)
+	: name(name), shaderPath(shaderpath), materialPath(matpath), lights(lts)
 {
-	shader = std::make_unique<Shader>(shaderpath);
 	Parse(matpath);
+	shader = std::make_unique<Shader>(shaderpath);
+	shader->PrintUniforms();
 	OnUpdate();
 }
 
@@ -206,9 +208,16 @@ Material::~Material()
 void Material::OnUpdate()
 {
 	shader->Bind();
+
+	if (lights && lights->size())
+	{
+		std::shared_ptr<Light> light = lights->operator[](0)->GetAttrib<Light>();
+		shader->SetUniform4fv("u_Light", &light->lightCol[0]);
+		shader->SetUniform3fv("u_LightDir", &light->lightDir[0]);
+	}
+
 	shader->SetUniform4fv("u_Ambient", &ambientCol[0]);
 	shader->SetUniform4fv("u_Diffuse", &diffuseCol[0]);
-
 	shader->SetUniform4fv("u_Specular", &specCol[0]);
 	shader->SetUniform1f("u_SpecInt", specInt);
 }
@@ -223,11 +232,6 @@ void Material::OnImGuiRender()
 	ImGui::ColorEdit4("Specular Color", &specCol[0]);
 	ImGui::SliderFloat("Specular Intensity", &specInt, 0.0f, 50.0f);
 	ImGui::TreePop();
-}
-
-void Material::AddLight(const Light& light)
-{
-	lights.push_back(light);
 }
 
 void Material::Parse(const std::string& matfile)
@@ -284,27 +288,27 @@ void Material::Parse(const std::string& matfile)
 //
 //-----------------------------------
 
-MeshRenderer::MeshRenderer(Mesh* m, Material* mat, const bool& islit)
-	: mesh(m), material(mat), isLit(islit)
-{
-}
-
-MeshRenderer::~MeshRenderer()
-{
-}
-
-void MeshRenderer::OnUpdate()
-{
-
-}
-
-void MeshRenderer::OnImGuiRender()
-{
-	if (!ImGui::TreeNode("Mesh Renderer"))
-		return;
-	std::string namestr = std::string("Material: ") + material->name;
-	ImGui::Text(namestr.c_str());
-	ImGui::Checkbox("Lighting", &isLit);
-
-	ImGui::TreePop();
-}
+//MeshRenderer::MeshRenderer(Mesh* m, Material* mat, const bool& islit)
+//	: mesh(m), material(mat), isLit(islit)
+//{
+//}
+//
+//MeshRenderer::~MeshRenderer()
+//{
+//}
+//
+//void MeshRenderer::OnUpdate()
+//{
+//
+//}
+//
+//void MeshRenderer::OnImGuiRender()
+//{
+//	if (!ImGui::TreeNode("Mesh Renderer"))
+//		return;
+//	std::string namestr = std::string("Material: ") + material->name;
+//	ImGui::Text(namestr.c_str());
+//	ImGui::Checkbox("Lighting", &isLit);
+//
+//	ImGui::TreePop();
+//}

@@ -8,8 +8,8 @@
 //
 //-----------------------------------
 
-Transform::Transform(glm::vec3 pos, glm::vec3 rot, glm::vec3 scale)
-	: position(pos), rotation(rot), scale(scale)
+Transform::Transform(std::shared_ptr<glm::mat4> view, glm::vec3 pos, glm::vec3 rot, glm::vec3 scale)
+	: view(view), position(pos), rotation(rot), scale(scale)
 {
 	OnUpdate();
 }

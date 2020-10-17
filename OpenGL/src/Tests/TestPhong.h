@@ -35,7 +35,8 @@ namespace test {
 		bool m_Lmb, m_Rmb;
 
 		glm::vec3 m_Eye, m_Up, m_Piv, m_Center;
-		glm::mat4 m_Proj, m_View;
+		glm::mat4 m_Proj;
+		std::shared_ptr<glm::mat4> m_View;
 
 		std::shared_ptr<VertexArray> m_VAO;
 		std::unique_ptr<Object> m_Teapot;

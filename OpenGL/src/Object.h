@@ -27,7 +27,7 @@ public:
 	~Object();
 
 	void OnUpdate();
-	void Render(Renderer renderer, glm::mat4 proj, glm::mat4 view);
+	void Render(Renderer renderer, glm::mat4 proj);
 	void OnImGuiRender();
 	
 	template <typename T>

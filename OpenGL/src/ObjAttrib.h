@@ -30,7 +30,7 @@ public:
 class Transform : public ObjAttrib
 {
 public:
-	Transform(glm::vec3 pos = glm::vec3(0), glm::vec3 rot = glm::vec3(0), glm::vec3 scale = glm::vec3(0));
+	Transform(std::shared_ptr<glm::mat4> view, glm::vec3 pos = glm::vec3(0), glm::vec3 rot = glm::vec3(0), glm::vec3 scale = glm::vec3(0));
 	~Transform();
 
 	glm::vec3 ApplyTransf(glm::vec4 vec);
@@ -45,6 +45,7 @@ public:
 	glm::vec3 scale;
 	glm::vec3 rotation;
 	glm::mat4 transform;
+	std::shared_ptr<glm::mat4> view;
 
 private:
 };

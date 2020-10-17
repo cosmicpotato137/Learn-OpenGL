@@ -29,14 +29,14 @@ void Object::OnUpdate()
 		it->second->OnUpdate();
 }
 
-void Object::Render(Renderer renderer, glm::mat4 proj, glm::mat4 view)
+void Object::Render(Renderer renderer, glm::mat4 proj)
 {
 	std::shared_ptr<Transform> transf = GetAttrib<Transform>();
-	glm::mat4 modelview = view * transf->transform;
-
 	std::shared_ptr<Material> mat = GetAttrib<Material>();
+
 	mat->shader->Bind();
-	mat->shader->SetUniformMat4f("u_ModelView", modelview);
+	mat->shader->SetUniformMat4f("u_Model", transf->transform);
+	mat->shader->SetUniformMat4f("u_View", *transf->view);
 	mat->shader->SetUniformMat4f("u_Projection", proj);
 
 	std::shared_ptr<Mesh> mesh = GetAttrib<Mesh>();

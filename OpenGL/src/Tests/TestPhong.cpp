@@ -16,13 +16,13 @@ namespace test {
 		m_Proj = glm::perspective(
 			90.0f * glm::pi<float>() / 180.0f, (float)m_W / (float)m_H, 0.1f, 1500.0f
 		);
-		m_View = glm::lookAt(m_Eye, m_Center, m_Up);
+		m_View = std::make_shared<glm::mat4>(glm::lookAt(m_Eye, m_Center, m_Up));
 
 		// lights
 		{
 			//m_Lights = std::make_shared<std::vector<std::shared_ptr<Object>>>();
 			m_Lights = new std::vector<std::shared_ptr<Object>>();
-			std::shared_ptr<Transform> transf1 = std::make_shared<Transform>(glm::vec3(1, 1, 1));
+			std::shared_ptr<Transform> transf1 = std::make_shared<Transform>(m_View, glm::vec3(1, 1, 1));
 			std::shared_ptr<Light> l1 = std::make_shared<Light>(glm::vec4(-1, -1, -1, 0), glm::vec4(1, 1, 1, 1), 1.0f);
 			std::shared_ptr<Object> light1 = std::make_shared<Object>("Light 1");
 			light1->SetAttrib(transf1);
@@ -32,7 +32,7 @@ namespace test {
 
 		m_VAO = std::make_shared<VertexArray>();
 
-		std::shared_ptr<Transform> transf = std::make_shared<Transform>();
+		std::shared_ptr<Transform> transf = std::make_shared<Transform>(m_View);
 		//std::shared_ptr<Light> light = std::make_shared<Light>(glm::vec4(-1, -1, -1, 0), glm::vec4(1, 1, 1, 1), 1);
 		std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>(std::string("res/models/box.obj"), m_VAO);
 		m_Mat1 = std::make_shared<Material>("Regular", "res/shaders/Phong.shader", "res/models/teapot.mtl", m_Lights);
@@ -58,14 +58,12 @@ namespace test {
 
 	void TestPhong::OnUpdate(float deltaTime)
 	{
-		m_View = glm::lookAt(m_Eye, m_Center, m_Up);
-		glm::vec4 newdir = m_View* m_Lights->operator[](0)->GetAttrib<Light>()->lightDir;
-		m_Lights->operator[](0)->GetAttrib<Light>()->lightDir = newdir;
 		//for (auto it = m_Lights->begin(); it < m_Lights->end(); ++it)
 		//{
 		//	auto dir = m_View * (*it)->GetAttrib<Light>()->lightDir;
 		//	(*it)->GetAttrib<Light>()->lightDir = dir;
 		//}
+		*m_View = glm::lookAt(m_Eye, m_Center, m_Up);
 
 		m_Teapot->OnUpdate();
 	}
@@ -77,7 +75,7 @@ namespace test {
 
 		Renderer renderer;
 
-		m_Teapot->Render(renderer, m_Proj, m_View);
+		m_Teapot->Render(renderer, m_Proj);
 	}
 
 	void TestPhong::OnImGuiRender()
@@ -87,7 +85,7 @@ namespace test {
 		m_Teapot->OnImGuiRender();
 
 		ImGui::EndChild();
-		glm::vec4 camera = m_View * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+		glm::vec4 camera = *m_View * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 		ImGui::Text("Camera Position (%f, %f, %f)", -camera.x, -camera.y, -camera.z);
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	}

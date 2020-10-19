@@ -5,13 +5,21 @@
 #include <iostream>
 
 #include "Shader.h"
+#include "VertexArray.h"
+#include "BufferLayout.h"
+#include "VertexBuffer.h"
+#include "IndexBuffer.h"
+#include "Shader.h"
+#include "Texture.h"
+#include "Renderer.h"
+#include "UniformBuffer.h"
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
 #include "VertexArray.h"
 #include "VertexBuffer.h"
-#include "VertexBufferLayout.h"
+#include "BufferLayout.h"
 #include "IndexBuffer.h"
 
 // foreward declaring the object class to avoid infinite inclusion
@@ -80,6 +88,8 @@ public:
 	Light(glm::vec4 lightdir, glm::vec4 lightcol, float lightint);
 	~Light();
 
+	void OnImGuiRender() override;
+
 public:
 	glm::vec4 lightDir;
 	glm::vec4 lightCol;
@@ -89,10 +99,8 @@ public:
 class Material : public ObjAttrib
 {
 public:
-	Material(const std::string& name, const std::string& shaderpath, 
-		glm::vec4 diffuse, glm::vec4 ambient, float specint, glm::vec4 speccol);
-
-	Material(const std::string& name, const std::string& shaderpath, const std::string& matpath, std::vector<std::shared_ptr<Object>>* lts);
+	Material(const std::string& name, const std::string& shaderpath, const std::string& matpath, 
+		std::vector<std::shared_ptr<Object>>* lts, std::shared_ptr<UniformBuffer> lightbuffer);
 	~Material();
 
 	void OnUpdate() override;
@@ -106,25 +114,30 @@ public:
 	std::string shaderPath;
 	std::string materialPath;
 
-	std::unique_ptr<Shader> shader;
+	std::shared_ptr<Shader> shader;
 	glm::vec4 diffuseCol;
 	glm::vec4 ambientCol;
 	float specInt;
 	glm::vec4 specCol;
+	
 	std::vector<std::shared_ptr<Object>>* lights;
+	std::shared_ptr<UniformBuffer> lightBuffer;
 };
 
-//class MeshRenderer : public ObjAttrib
-//{
-//public:
-//	MeshRenderer(Mesh* m, Material* mat, const bool& islit=true);
-//	~MeshRenderer();
-//
-//	void OnUpdate() override;
-//	void OnImGuiRender() override;
-//
-//public:
-//	Mesh* mesh;
-//	Material* material;
-//	bool isLit;
-//};
+class MeshRenderer : public ObjAttrib
+{
+public:
+	MeshRenderer(std::shared_ptr<Material> mat, std::shared_ptr<glm::mat4> proj);
+	~MeshRenderer();
+
+	void OnUpdate() override;
+	void OnImGuiRender() override;
+
+	void Clear() const;
+	void Draw(const Transform& transf, const Mesh& mesh);
+
+public:
+	std::shared_ptr<Material> material;
+	std::shared_ptr<glm::mat4> proj;
+	bool isLit;
+};

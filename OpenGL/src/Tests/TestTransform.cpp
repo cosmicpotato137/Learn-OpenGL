@@ -1,6 +1,6 @@
 #include "TestTransform.h"
 
-#include "VertexBufferLayout.h"
+#include "BufferLayout.h"
 #include "Renderer.h"
 
 namespace test {

@@ -5,6 +5,7 @@
 #include <string>
 
 #include "GLLog.h"
+#include "Renderer.h"
 
 #include "imgui/imgui.h"
 #include "imgui/example_glfw_opengl3/imgui_impl_glfw.h"

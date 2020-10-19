@@ -5,6 +5,8 @@
 
 #include "glm/glm.hpp"
 
+class Object;
+
 struct ShaderProgramSource
 {
 	std::string VertexSource;
@@ -23,6 +25,8 @@ public:
 
 	void Bind() const;
 	void Unbind() const;
+
+	void SetUniformBlockIndex(const std::string& name, unsigned int binding);
 
 	void SetUniform4f(const std::string& name, float v0, float v1, float v2, float v3);
 	void SetUniform4fv(const std::string& name, const float* value);

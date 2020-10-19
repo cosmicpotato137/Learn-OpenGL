@@ -3,6 +3,7 @@
 
 #include "GLLog.h"
 #include "Shader.h"
+#include "Object.h"
 
 Shader::Shader(const std::string& filepath)
 	: m_Filepath(filepath), m_RendererID(0)
@@ -105,6 +106,13 @@ void Shader::Bind() const
 void Shader::Unbind() const
 {
     GLCall(glUseProgram(0));
+}
+
+// sets the binding point of a uniform block and returns its index
+void Shader::SetUniformBlockIndex(const std::string& name, unsigned int binding)
+{
+    GLCall(unsigned int ubo = glGetUniformBlockIndex(m_RendererID, "Light"));
+    GLCall(glUniformBlockBinding(m_RendererID, ubo, binding));
 }
 
 void Shader::SetUniform4f(const std::string& name,

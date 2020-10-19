@@ -7,14 +7,6 @@
 #include <iostream>
 #include <unordered_map>
 
-#include "VertexArray.h"
-#include "VertexBufferLayout.h"
-#include "VertexBuffer.h"
-#include "IndexBuffer.h"
-#include "Shader.h"
-#include "Texture.h"
-#include "Renderer.h"
-
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
@@ -27,7 +19,7 @@ public:
 	~Object();
 
 	void OnUpdate();
-	void Render(Renderer renderer, glm::mat4 proj);
+	void OnRender();
 	void OnImGuiRender();
 	
 	template <typename T>
@@ -49,7 +41,7 @@ private:
 //public:
 //	DebugObject(std::string& name, std::string& filepath, std::string& shaderpath);
 //
-//	void Render(Renderer renderer, glm::mat4 proj, glm::mat4 view);
+//	void OnRender(Renderer renderer, glm::mat4 proj, glm::mat4 view);
 //	void OnUpdate();
 //
 //public:

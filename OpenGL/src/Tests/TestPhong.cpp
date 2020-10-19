@@ -1,6 +1,6 @@
 #include "TestPhong.h"
 
-#include "VertexBufferLayout.h"
+#include "BufferLayout.h"
 #include "Renderer.h"
 
 #include "ObjAttrib.h"
@@ -13,9 +13,10 @@ namespace test {
 	{
 		GLCall(glEnable(GL_DEPTH_TEST));
 
-		m_Proj = glm::perspective(
-			90.0f * glm::pi<float>() / 180.0f, (float)m_W / (float)m_H, 0.1f, 1500.0f
+		m_Proj = std::make_shared<glm::mat4>(
+			glm::perspective(90.0f * glm::pi<float>() / 180.0f, (float)m_W / (float)m_H, 0.1f, 1500.0f)
 		);
+		
 		m_View = std::make_shared<glm::mat4>(glm::lookAt(m_Eye, m_Center, m_Up));
 
 		// lights
@@ -30,21 +31,26 @@ namespace test {
 			m_Lights->push_back(light1);
 		}
 
+		UniformBufferLayout ubl;
+		ubl.Push<glm::vec4>(1);
+		ubl.Push<glm::vec4>(1);
+		ubl.Push<float>(1);
+		m_UBO = std::make_shared<UniformBuffer>(ubl, 0);
+
 		m_VAO = std::make_shared<VertexArray>();
 
-		std::shared_ptr<Transform> transf = std::make_shared<Transform>(m_View);
-		//std::shared_ptr<Light> light = std::make_shared<Light>(glm::vec4(-1, -1, -1, 0), glm::vec4(1, 1, 1, 1), 1);
-		std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>(std::string("res/models/box.obj"), m_VAO);
-		m_Mat1 = std::make_shared<Material>("Regular", "res/shaders/Phong.shader", "res/models/teapot.mtl", m_Lights);
+		std::shared_ptr<Transform> transf = std::make_shared<Transform>(m_View); // make transform
+		std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>(std::string("res/models/teapot.obj"), m_VAO); // make mesh
+		m_Mat1 = std::make_shared<Material>("Regular", "res/shaders/Phong.shader", "res/models/teapot.mtl", m_Lights, m_UBO); // make material
+		std::shared_ptr<MeshRenderer> meshrenderer = std::make_shared<MeshRenderer>(m_Mat1, m_Proj); // make mesh renderer
 		
 		m_Teapot = std::make_unique<Object>("teapot");
 		m_Teapot->SetAttrib(transf);
-		//m_Teapot->SetAttrib(light);
 		m_Teapot->SetAttrib(mesh);
+		m_Teapot->SetAttrib(meshrenderer);
 		m_Teapot->SetAttrib(m_Mat1);
 
 		m_Teapot->GetAttrib<Transform>()->scale = glm::vec3(50, 50, 50);
-
 
 		OnUpdate(0.0f);
 		OnRender();
@@ -75,7 +81,7 @@ namespace test {
 
 		Renderer renderer;
 
-		m_Teapot->Render(renderer, m_Proj);
+		m_Teapot->OnRender();
 	}
 
 	void TestPhong::OnImGuiRender()
@@ -83,6 +89,9 @@ namespace test {
 		ImGui::BeginChild("Scene", ImVec2(300, 400), true);
 		ImGui::Text("Scene View");
 		m_Teapot->OnImGuiRender();
+
+		for (int i = 0; i < m_Lights->size(); i++)
+			(*m_Lights)[i]->OnImGuiRender();
 
 		ImGui::EndChild();
 		glm::vec4 camera = *m_View * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
@@ -98,7 +107,7 @@ namespace test {
 		// Set the projection matrix based on the current perspective, then pass
 		// the calculated matrix onto the shader program. Remember that the perspective
 		// field of view should be in radians!
-		m_Proj = glm::perspective(
+		*m_Proj = glm::perspective(
 			90.0f * glm::pi<float>() / 180.0f, (float)m_W / (float)m_H, 0.1f, 1500.0f
 		);
 	}

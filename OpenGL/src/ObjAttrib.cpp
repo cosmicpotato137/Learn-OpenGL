@@ -63,6 +63,16 @@ Light::~Light()
 {
 }
 
+void Light::OnImGuiRender()
+{
+	if (!ImGui::TreeNode("Direction Light"))
+		return;
+	ImGui::InputFloat3("Direction", &lightDir[0]);
+	ImGui::ColorEdit4("Color", &lightCol[0]);
+	ImGui::SliderFloat("Intensity", &lightInt, 0, 100);
+	ImGui::TreePop();
+}
+
 //-----------------------------------
 //
 // Mesh
@@ -183,20 +193,12 @@ void Mesh::Parse()
 //
 //-----------------------------------
 
-Material::Material(const std::string& name, const std::string& shaderpath,
-	glm::vec4 diffuse, glm::vec4 ambient, float specint, glm::vec4 speccol)
-	: name(name), shaderPath(shaderpath), diffuseCol(diffuse), 
-	ambientCol(ambient), specInt(specint), specCol(speccol)
-{
-	shader = std::make_unique<Shader>(shaderpath);
-	OnUpdate();
-}
-
-Material::Material(const std::string& name, const std::string& shaderpath, const std::string& matpath, std::vector<std::shared_ptr<Object>>* lts)
-	: name(name), shaderPath(shaderpath), materialPath(matpath), lights(lts)
+Material::Material(const std::string& name, const std::string& shaderpath, const std::string& matpath, std::vector<std::shared_ptr<Object>>* lts, std::shared_ptr<UniformBuffer> lightbuffer)
+	: name(name), shaderPath(shaderpath), materialPath(matpath), lights(lts), lightBuffer(lightbuffer)
 {
 	Parse(matpath);
-	shader = std::make_unique<Shader>(shaderpath);
+	shader = std::make_shared<Shader>(shaderpath);
+	lightBuffer->BindUniformBlock("Light", shader);
 	shader->PrintUniforms();
 	OnUpdate();
 }
@@ -209,11 +211,23 @@ void Material::OnUpdate()
 {
 	shader->Bind();
 
-	if (lights && lights->size())
+	int i = 0;
+	while (lights && i < lights->size())
 	{
-		std::shared_ptr<Light> light = lights->operator[](0)->GetAttrib<Light>();
-		shader->SetUniform4fv("u_Light", &light->lightCol[0]);
-		shader->SetUniform3fv("u_LightDir", &light->lightDir[0]);
+		Light light = *(*lights)[i]->GetAttrib<Light>();
+		Transform transf = *(*lights)[i]->GetAttrib<Transform>();
+		glm::vec4 dir = *transf.view * light.lightDir;
+
+		glm::vec4 c = glm::vec4(2, 3, 4, 5);
+		lightBuffer->SetBufferSubData(0, &c);
+		glm::vec4* data = new glm::vec4();
+		lightBuffer->GetBufferSubData(0, data);
+		std::cout << data->x << " " << data->y << " " << data->z << " " << data->w << " " << std::endl;
+		delete data;
+
+		shader->SetUniform4fv("u_Light", &light.lightCol[0]);
+		shader->SetUniform3fv("u_LightDir", &dir[0]);
+		i++;
 	}
 
 	shader->SetUniform4fv("u_Ambient", &ambientCol[0]);
@@ -288,27 +302,46 @@ void Material::Parse(const std::string& matfile)
 //
 //-----------------------------------
 
-//MeshRenderer::MeshRenderer(Mesh* m, Material* mat, const bool& islit)
-//	: mesh(m), material(mat), isLit(islit)
-//{
-//}
-//
-//MeshRenderer::~MeshRenderer()
-//{
-//}
-//
-//void MeshRenderer::OnUpdate()
-//{
-//
-//}
-//
-//void MeshRenderer::OnImGuiRender()
-//{
-//	if (!ImGui::TreeNode("Mesh Renderer"))
-//		return;
-//	std::string namestr = std::string("Material: ") + material->name;
-//	ImGui::Text(namestr.c_str());
-//	ImGui::Checkbox("Lighting", &isLit);
-//
-//	ImGui::TreePop();
-//}
+MeshRenderer::MeshRenderer(std::shared_ptr<Material> mat, std::shared_ptr<glm::mat4> proj)
+	: material(mat), proj(proj), isLit(true)
+{
+}
+
+MeshRenderer::~MeshRenderer()
+{
+}
+
+void MeshRenderer::OnUpdate()
+{
+
+}
+
+void MeshRenderer::OnImGuiRender()
+{
+	if (!ImGui::TreeNode("Mesh Renderer"))
+		return;
+	std::string namestr = std::string("Material: ") + material->name;
+	ImGui::Text(namestr.c_str());
+	ImGui::Checkbox("Lighting", &isLit);
+
+	ImGui::TreePop();
+}
+
+void MeshRenderer::Clear() const
+{
+	GLCall(glClear(GL_COLOR_BUFFER_BIT));
+}
+
+void MeshRenderer::Draw(const Transform& transf, const Mesh& mesh)
+{
+	glm::mat4 modelview = *transf.view * transf.transform;
+
+	material->shader->Bind();
+	material->shader->SetUniformMat4f("u_ModelView", modelview);
+	material->shader->SetUniformMat4f("u_Projection", *proj);
+
+	material->shader->Bind();
+	mesh.VAO->Bind();
+	mesh.IB->Bind();
+	GLCall(glDrawElements(GL_TRIANGLES, mesh.IB->GetCount(), GL_UNSIGNED_INT, nullptr));
+}

@@ -8,6 +8,7 @@
 #include "VertexBuffer.h"
 #include "VertexArray.h"
 #include "IndexBuffer.h"
+#include "UniformBuffer.h"
 #include "Shader.h"
 #include "Texture.h"
 #include "Object.h"
@@ -35,13 +36,14 @@ namespace test {
 		bool m_Lmb, m_Rmb;
 
 		glm::vec3 m_Eye, m_Up, m_Piv, m_Center;
-		glm::mat4 m_Proj;
-		std::shared_ptr<glm::mat4> m_View;
+		std::shared_ptr<glm::mat4> m_View, m_Proj;
 
 		std::shared_ptr<VertexArray> m_VAO;
 		std::unique_ptr<Object> m_Teapot;
 
 		std::vector<std::shared_ptr<Object>>* m_Lights;
+		std::shared_ptr<UniformBuffer> m_UBO;
+
 		std::shared_ptr<Material> m_Mat1;
 	};
 }

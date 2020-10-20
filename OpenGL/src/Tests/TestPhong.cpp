@@ -12,6 +12,8 @@ namespace test {
 		m_Eye(0.0f, 0.0f, 500), m_Up(0.0f, 1.0f, 0.0f), m_Center(0.0f, 0.0f, 0.0f)
 	{
 		GLCall(glEnable(GL_DEPTH_TEST));
+		GLCall(glEnable(GL_BLEND));
+		GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_CONSTANT_COLOR));
 
 		m_Proj = std::make_shared<glm::mat4>(
 			glm::perspective(90.0f * glm::pi<float>() / 180.0f, (float)m_W / (float)m_H, 0.1f, 1500.0f)
@@ -40,8 +42,8 @@ namespace test {
 		m_VAO = std::make_shared<VertexArray>();
 
 		std::shared_ptr<Transform> transf = std::make_shared<Transform>(m_View); // make transform
-		std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>(std::string("res/models/teapot.obj"), m_VAO); // make mesh
-		m_Mat1 = std::make_shared<Material>("Regular", "res/shaders/Phong.shader", "res/models/teapot.mtl", m_Lights, m_UBO); // make material
+		std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>(std::string("res/models/icosphere.obj"), m_VAO); // make mesh
+		m_Mat1 = std::make_shared<Material>("Regular", "res/shaders/forcefield.shader", "res/models/teapot.mtl", m_UBO); // make material
 		std::shared_ptr<MeshRenderer> meshrenderer = std::make_shared<MeshRenderer>(m_Mat1, m_Proj); // make mesh renderer
 		
 		m_Teapot = std::make_unique<Object>("teapot");
@@ -60,15 +62,25 @@ namespace test {
 	{
 		delete m_Lights;
 		GLCall(glDisable(GL_DEPTH_TEST));
+		GLCall(glDisable(GL_BLEND));
 	}
 
 	void TestPhong::OnUpdate(float deltaTime)
 	{
-		//for (auto it = m_Lights->begin(); it < m_Lights->end(); ++it)
-		//{
-		//	auto dir = m_View * (*it)->GetAttrib<Light>()->lightDir;
-		//	(*it)->GetAttrib<Light>()->lightDir = dir;
-		//}
+		int i = 0;
+		while (m_Lights && i < m_Lights->size())
+		{
+			Light light = *(*m_Lights)[i]->GetAttrib<Light>();
+			Transform transf = *(*m_Lights)[i]->GetAttrib<Transform>();
+			glm::vec4 dir = *transf.view * light.lightDir;
+
+			m_UBO->SetBufferSubData(0, &dir);
+			m_UBO->SetBufferSubData(1, &light.lightCol);
+			m_UBO->SetBufferSubData(2, &light.lightInt);
+
+			i++;
+		}
+
 		*m_View = glm::lookAt(m_Eye, m_Center, m_Up);
 
 		m_Teapot->OnUpdate();

@@ -99,8 +99,7 @@ public:
 class Material : public ObjAttrib
 {
 public:
-	Material(const std::string& name, const std::string& shaderpath, const std::string& matpath, 
-		std::vector<std::shared_ptr<Object>>* lts, std::shared_ptr<UniformBuffer> lightbuffer);
+	Material(const std::string& name, const std::string& shaderpath, const std::string& matpath, std::shared_ptr<UniformBuffer> lightbuffer);
 	~Material();
 
 	void OnUpdate() override;

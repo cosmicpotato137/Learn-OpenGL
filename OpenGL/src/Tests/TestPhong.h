@@ -40,6 +40,7 @@ namespace test {
 
 		std::shared_ptr<VertexArray> m_VAO;
 		std::unique_ptr<Object> m_Teapot;
+		std::unique_ptr<Object> m_Box;
 
 		std::vector<std::shared_ptr<Object>>* m_Lights;
 		std::shared_ptr<UniformBuffer> m_UBO;

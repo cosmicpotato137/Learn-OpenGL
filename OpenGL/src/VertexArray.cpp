@@ -25,7 +25,7 @@ void VertexArray::AddBuffer(const VertexBuffer& vb, const VertexBufferLayout& la
         GLCall(glEnableVertexAttribArray(lpos));
         // formatting of data in current 
         GLCall(glVertexAttribPointer(lpos, element.count, element.type, 
-            element.normalized, layout.GetStride(), (const void*)element.offset));
+            element.normalized, layout.GetSize(), (const void*)element.offset));
     }
 }
 

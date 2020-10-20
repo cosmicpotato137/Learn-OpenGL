@@ -104,6 +104,7 @@
     <ClCompile Include="src\Tests\TestPhong.cpp" />
     <ClCompile Include="src\Tests\TestTexture.cpp" />
     <ClCompile Include="src\Tests\TestTransform.cpp" />
+    <ClCompile Include="src\Tests\TestUniformBuffer.cpp" />
     <ClCompile Include="src\Texture.cpp" />
     <ClCompile Include="src\ObjAttrib.cpp" />
     <ClCompile Include="src\vendor\glm\detail\glm.cpp" />
@@ -125,6 +126,7 @@
   <ItemGroup>
     <None Include="res\shaders\basic.shader" />
     <None Include="res\shaders\debug.shader" />
+    <None Include="res\shaders\forcefield.shader" />
     <None Include="res\shaders\obj.shader" />
     <None Include="res\shaders\Gourad.shader" />
     <None Include="res\shaders\Phong.shader" />
@@ -277,6 +279,7 @@
     <ClInclude Include="src\Tests\Test.h" />
     <ClInclude Include="src\Tests\TestClearColor.h" />
     <ClInclude Include="src\Tests\TestTransform.h" />
+    <ClInclude Include="src\Tests\TestUniformBuffer.h" />
     <ClInclude Include="src\Texture.h" />
     <ClInclude Include="src\ObjAttrib.h" />
     <ClInclude Include="src\vendor\glm\common.hpp" />

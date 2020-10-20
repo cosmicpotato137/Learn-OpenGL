@@ -9,15 +9,23 @@ uniform mat4 u_Projection;
 
 void main()
 {
-    gl_Position = u_Projection * u_ModelView * vec4(position, 1.0f);
+	gl_Position = u_Projection * u_ModelView * vec4(position, 1.0f);
 };
 
 #shader fragment
 #version 330 core
 
-layout(location = 0) out vec4 color;
+layout(location = 0) out vec4 fragcolor;
+
+// light uniform block
+uniform layout(std140, row_major) Light
+{
+	vec3 direction;
+	vec4 color;
+	float intensity;
+};
 
 void main()
 {
-    color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	fragcolor = color;
 };

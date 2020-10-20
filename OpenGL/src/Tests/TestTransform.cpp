@@ -40,6 +40,7 @@ namespace test {
 
 	TestTransform2D::~TestTransform2D()
 	{
+		GLCall(glDisable(GL_BLEND));
 	}
 
 	void TestTransform2D::OnUpdate(float deltaTime)

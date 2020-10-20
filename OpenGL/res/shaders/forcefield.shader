@@ -38,23 +38,26 @@ uniform vec4 u_Specular;
 uniform float u_SpecInt;
 
 vec4 ComputeLight(vec3 light_dir, vec4 light_col, vec3 normal, vec3 half_angle,
-	vec4 diffuse, vec4 spec, float spec_size, float light_int)
+	vec4 diffuse, vec4 spec, float spec_size)
 {
-	float surface_int = max(dot(normal, -light_dir), 0.0f);
-	vec4 lambert = diffuse * light_col * surface_int * light_int;
+	float surface_int = max(1 / dot(normal, -light_dir), 0);
+	vec4 lambert = diffuse * surface_int * spec_size * length(light_dir)/1000;
 
-	float spec_int = pow(max(dot(normal, half_angle), 0.0f), spec_size);
-	vec4 phong = spec * light_col * spec_int * surface_int;
+	//float spec_int = pow(max(dot(normal, half_angle), 0.0f), spec_size);
+	//vec4 phong = spec * light_col * spec_int * surface_int;
 
-	return lambert + phong;
+	return lambert;
 };
 
 void main()
 {
+	//vec3 hlf = normalize(normalize(u_LightDir) + normalize(mypos));
+	//v_Highlight = pow(max(dot(norm, -hlf), 0.0f), u_HighlightInt);
+
 	vec3 pos = v_Position.xyz / v_Position.w;
 	vec3 hlf = -normalize(normalize(direction) + normalize(pos));
-	vec4 light = ComputeLight(direction, color, normalize(v_Normal), hlf, 
-		u_Diffuse, u_Specular, u_SpecInt, intensity);
+	vec4 light = ComputeLight(pos, color, normalize(v_Normal), hlf,
+		u_Diffuse, u_Specular, u_SpecInt);
 
-	fragcolor = vec4(light.xyz, 1);
+	fragcolor = light;
 };

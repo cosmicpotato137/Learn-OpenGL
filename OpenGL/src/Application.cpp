@@ -16,6 +16,7 @@
 #include "Tests/TestTexture.h"
 //#include "Tests/Test3D.h"
 #include "Tests/TestPhong.h"
+#include "Tests/TestUniformBuffer.h"
 
 using namespace test;
 
@@ -118,6 +119,7 @@ int main(void)
     testMenu->RegisterTest<test::TestTransform2D>("2D Transform");
     testMenu->RegisterTest<test::TestTexture2D>("2D Textrue");
     //testMenu->RegisterTest<test::Test3D>("3D Render");
+    testMenu->RegisterTest<test::TestUniformBuffer>("Uniform Buffers");
     testMenu->RegisterTest<test::TestPhong>("Phong Shading");
 
     float r = 0.0;

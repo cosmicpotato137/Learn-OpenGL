@@ -69,7 +69,7 @@ void Light::OnImGuiRender()
 		return;
 	ImGui::InputFloat3("Direction", &lightDir[0]);
 	ImGui::ColorEdit4("Color", &lightCol[0]);
-	ImGui::SliderFloat("Intensity", &lightInt, 0, 100);
+	ImGui::SliderFloat("Intensity", &lightInt, 0, 10);
 	ImGui::TreePop();
 }
 
@@ -158,7 +158,7 @@ void Mesh::Parse()
 		}
 		else if (c1 == 'f' && c2 == ' ')
 		{
-			fscanf_s(fp, "%d//%d %d//%d %d//%d", &fa, &na, &fb, &nb, &fc, &nc);
+			fscanf_s(fp, "%d/%d/%d %d/%d/%d %d/%d/%d", &fa, &na, &ignore, &fb, &nb, &ignore, &fc, &nc, &ignore);
 			// triangle indices -- (vert, normal)
 			inds.push_back(glm::vec2(fa - 1, na - 1));
 			inds.push_back(glm::vec2(fb - 1, nb - 1));
@@ -193,12 +193,13 @@ void Mesh::Parse()
 //
 //-----------------------------------
 
-Material::Material(const std::string& name, const std::string& shaderpath, const std::string& matpath, std::vector<std::shared_ptr<Object>>* lts, std::shared_ptr<UniformBuffer> lightbuffer)
-	: name(name), shaderPath(shaderpath), materialPath(matpath), lights(lts), lightBuffer(lightbuffer)
+Material::Material(const std::string& name, const std::string& shaderpath, const std::string& matpath, std::shared_ptr<UniformBuffer> lightbuffer)
+	: name(name), shaderPath(shaderpath), materialPath(matpath), lightBuffer(lightbuffer)
 {
 	Parse(matpath);
 	shader = std::make_shared<Shader>(shaderpath);
 	lightBuffer->BindUniformBlock("Light", shader);
+	LOG(name);
 	shader->PrintUniforms();
 	OnUpdate();
 }
@@ -210,26 +211,6 @@ Material::~Material()
 void Material::OnUpdate()
 {
 	shader->Bind();
-
-	int i = 0;
-	while (lights && i < lights->size())
-	{
-		Light light = *(*lights)[i]->GetAttrib<Light>();
-		Transform transf = *(*lights)[i]->GetAttrib<Transform>();
-		glm::vec4 dir = *transf.view * light.lightDir;
-
-		glm::vec4 c = glm::vec4(2, 3, 4, 5);
-		lightBuffer->SetBufferSubData(0, &c);
-		glm::vec4* data = new glm::vec4();
-		lightBuffer->GetBufferSubData(0, data);
-		std::cout << data->x << " " << data->y << " " << data->z << " " << data->w << " " << std::endl;
-		delete data;
-
-		shader->SetUniform4fv("u_Light", &light.lightCol[0]);
-		shader->SetUniform3fv("u_LightDir", &dir[0]);
-		i++;
-	}
-
 	shader->SetUniform4fv("u_Ambient", &ambientCol[0]);
 	shader->SetUniform4fv("u_Diffuse", &diffuseCol[0]);
 	shader->SetUniform4fv("u_Specular", &specCol[0]);
@@ -244,7 +225,7 @@ void Material::OnImGuiRender()
 	ImGui::ColorEdit4("Diffuse Color", &diffuseCol[0]);
 	ImGui::ColorEdit4("Ambient Color", &ambientCol[0]);
 	ImGui::ColorEdit4("Specular Color", &specCol[0]);
-	ImGui::SliderFloat("Specular Intensity", &specInt, 0.0f, 50.0f);
+	ImGui::SliderFloat("Specular Intensity", &specInt, 0.0f, 500.0f);
 	ImGui::TreePop();
 }
 

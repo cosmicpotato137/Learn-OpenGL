@@ -8,7 +8,7 @@ UniformBuffer::UniformBuffer(UniformBufferLayout layout, unsigned int binding)
 	// create the uniform BUFFER and bind it to the correct binding point
 	GLCall(glGenBuffers(1, &m_RendererID));
 	GLCall(glBindBuffer(GL_UNIFORM_BUFFER, m_RendererID));
-	GLCall(glBufferData(GL_UNIFORM_BUFFER, layout.GetStride(), NULL, GL_DYNAMIC_DRAW));
+	GLCall(glBufferData(GL_UNIFORM_BUFFER, layout.GetSize(), NULL, GL_DYNAMIC_DRAW));
 	GLCall(glBindBuffer(GL_UNIFORM_BUFFER, 0));
 
 	GLCall(glBindBufferBase(GL_UNIFORM_BUFFER, binding, m_RendererID));
@@ -44,6 +44,6 @@ void UniformBuffer::GetBufferSubData(unsigned int index, void* data)
 {
 	GLCall(glBindBuffer(GL_UNIFORM_BUFFER, m_RendererID));
 	unsigned int size = BufferElement::GetSizeOfType(BL[index].type);
-	glGetBufferSubData(GL_UNIFORM_BUFFER, 0, 4, data);
+	glGetBufferSubData(GL_UNIFORM_BUFFER, BL[index].offset, size, data);
 	GLCall(glBindBuffer(GL_UNIFORM_BUFFER, 0));
 }

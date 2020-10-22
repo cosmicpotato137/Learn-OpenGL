@@ -3,14 +3,9 @@
 #include "Test.h"
 
 #include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
 
-#include "VertexBuffer.h"
 #include "VertexArray.h"
-#include "IndexBuffer.h"
 #include "UniformBuffer.h"
-#include "Shader.h"
-#include "Texture.h"
 #include "Object.h"
 
 namespace test {
@@ -35,6 +30,7 @@ namespace test {
 		float m_Mousex, m_Mousey;
 		bool m_Lmb, m_Rmb;
 
+		std::unique_ptr<Object> m_ActiveCamera;
 		glm::vec3 m_Eye, m_Up, m_Piv, m_Center;
 		std::shared_ptr<glm::mat4> m_View, m_Proj;
 
@@ -42,8 +38,8 @@ namespace test {
 		std::unique_ptr<Object> m_Teapot;
 		std::unique_ptr<Object> m_Box;
 
-		std::vector<std::shared_ptr<Object>>* m_Lights;
-		std::shared_ptr<UniformBuffer> m_UBO;
+		std::vector<std::unique_ptr<Object>> m_Lights;
+		std::shared_ptr<UniformBuffer> m_LightBuffer;
 
 		std::shared_ptr<Material> m_Mat1;
 	};

@@ -27,7 +27,7 @@ namespace test {
 		glm::vec4 color;
 
 		std::vector<std::shared_ptr<Object>>* m_Lights;
-		std::shared_ptr<UniformBuffer> m_UBO;
+		std::shared_ptr<UniformBuffer> m_LightBuffer;
 
 	};
 }

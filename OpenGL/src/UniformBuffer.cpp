@@ -2,13 +2,13 @@
 
 #include "GLLog.h"
 
-UniformBuffer::UniformBuffer(UniformBufferLayout layout, unsigned int binding)
-	: BL(layout), m_Binding(binding)
+UniformBuffer::UniformBuffer(UniformBufferLayout layout, unsigned int layoutcount, unsigned int binding)
+	: BL(layout), m_Binding(binding), m_LayoutCount(layoutcount)
 {
 	// create the uniform BUFFER and bind it to the correct binding point
 	GLCall(glGenBuffers(1, &m_RendererID));
 	GLCall(glBindBuffer(GL_UNIFORM_BUFFER, m_RendererID));
-	GLCall(glBufferData(GL_UNIFORM_BUFFER, layout.GetSize(), NULL, GL_DYNAMIC_DRAW));
+	GLCall(glBufferData(GL_UNIFORM_BUFFER, layout.ByteSize() * layoutcount, NULL, GL_DYNAMIC_DRAW));
 	GLCall(glBindBuffer(GL_UNIFORM_BUFFER, 0));
 
 	GLCall(glBindBufferBase(GL_UNIFORM_BUFFER, binding, m_RendererID));
@@ -24,26 +24,29 @@ void UniformBuffer::BindUniformBlock(const std::string& name, std::shared_ptr<Sh
 	shader->SetUniformBlockIndex(name, m_Binding);
 }
 
-void UniformBuffer::SetBufferSubData(unsigned int index, const void* data)
+void UniformBuffer::SetBufferSubData(unsigned int x, unsigned int y, const void* data)
 {
 	// bind buffer
 	GLCall(glBindBuffer(GL_UNIFORM_BUFFER, m_RendererID));
 
 	// get buffer index size
-	unsigned int size = BufferElement::GetSizeOfType(BL[index].type);
+	unsigned int size = BufferElement::GetSizeOfType(BL[x].type);
 	// make sure data will stay within the index size
 	ASSERT(sizeof(data) <= size);
+	ASSERT(y < m_LayoutCount);
 	// write to buffer
-	GLCall(glBufferSubData(GL_UNIFORM_BUFFER, BL[index].offset, size, data));
+	GLCall(glBufferSubData(GL_UNIFORM_BUFFER, BL.ByteSize() * y + BL[x].offset, size, data));
+
+
 
 	// make sure to tell OpenGL we're done with the pointer
 	GLCall(glBindBuffer(GL_UNIFORM_BUFFER, 0));
 }
 
-void UniformBuffer::GetBufferSubData(unsigned int index, void* data)
+void UniformBuffer::GetBufferSubData(unsigned int x, unsigned int y, void* data)
 {
 	GLCall(glBindBuffer(GL_UNIFORM_BUFFER, m_RendererID));
-	unsigned int size = BufferElement::GetSizeOfType(BL[index].type);
-	glGetBufferSubData(GL_UNIFORM_BUFFER, BL[index].offset, size, data);
+	unsigned int size = BufferElement::GetSizeOfType(BL[x].type);
+	glGetBufferSubData(GL_UNIFORM_BUFFER, 0, BL.ByteSize() * m_LayoutCount, data);
 	GLCall(glBindBuffer(GL_UNIFORM_BUFFER, 0));
 }

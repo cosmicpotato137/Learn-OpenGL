@@ -25,11 +25,16 @@ in vec3 v_Normal;
 layout(location = 0) out vec4 fragcolor;
 
 // light uniform block
-uniform layout(std140, row_major) Light
+struct Light
 {
 	vec3 direction;
 	vec4 color;
 	float intensity;
+};
+
+layout(std140) uniform LightBlock
+{
+	Light lights[2];
 };
 
 uniform vec4 u_Diffuse;
@@ -51,10 +56,14 @@ vec4 ComputeLight(vec3 light_dir, vec4 light_col, vec3 normal, vec3 half_angle,
 
 void main()
 {
+	vec4 lighting = vec4(0, 0, 0, 0);
 	vec3 pos = v_Position.xyz / v_Position.w;
-	vec3 hlf = -normalize(normalize(direction) + normalize(pos));
-	vec4 light = ComputeLight(direction, color, normalize(v_Normal), hlf, 
-		u_Diffuse, u_Specular, u_SpecInt, intensity);
+	for (int i = 0; i < 2; i++)
+	{
+		vec3 hlf = -normalize(normalize(lights[i].direction) + normalize(pos));
+		lighting += ComputeLight(lights[i].direction, lights[i].color, normalize(v_Normal), hlf, 
+			u_Diffuse, u_Specular, u_SpecInt, lights[i].intensity);
+	}
 
-	fragcolor = vec4(light.xyz, 1);
+	fragcolor = vec4(lighting.xyz, 1) + u_Ambient;
 };

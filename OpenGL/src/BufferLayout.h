@@ -40,7 +40,8 @@ public:
 	BufferElement operator[](unsigned int i);
 
 	inline const std::vector<BufferElement> GetElements() const { return m_Elements; }
-	inline unsigned int GetSize() const { return m_ByteSize; }
+	inline unsigned int ByteSize() const { return m_ByteSize; }
+	inline unsigned int Size() const { return m_Elements.size(); }
 };
 
 class VertexBufferLayout : public BufferLayout
@@ -100,14 +101,14 @@ public:
 	void Push<float>(unsigned int count)
 	{
 		m_Elements.push_back({ GL_FLOAT, count, m_ByteSize, GL_FALSE });
-		m_ByteSize += count * BufferElement::GetSizeOfType(GL_FLOAT);
+		m_ByteSize += count * BufferElement::GetSizeOfType(GL_FLOAT_VEC4);
 	}
 
 	template<>
 	void Push<glm::vec3>(unsigned int count)
 	{
 		m_Elements.push_back({ GL_FLOAT_VEC3, count, m_ByteSize, GL_FALSE });
-		m_ByteSize += count * BufferElement::GetSizeOfType(GL_FLOAT_VEC3);
+		m_ByteSize += count * BufferElement::GetSizeOfType(GL_FLOAT_VEC4);
 	}
 
 	template<>
@@ -121,13 +122,13 @@ public:
 	void Push<unsigned int>(unsigned int count)
 	{
 		m_Elements.push_back({ GL_UNSIGNED_INT, count, m_ByteSize, GL_FALSE });
-		m_ByteSize += count * BufferElement::GetSizeOfType(GL_UNSIGNED_INT);
+		m_ByteSize += count * BufferElement::GetSizeOfType(GL_FLOAT_VEC4);
 	}
 
 	template<>
 	void Push<char>(unsigned int count)
 	{
 		m_Elements.push_back({ GL_UNSIGNED_BYTE, count, m_ByteSize, GL_TRUE });
-		m_ByteSize += count * BufferElement::GetSizeOfType(GL_UNSIGNED_BYTE);
+		m_ByteSize += count * BufferElement::GetSizeOfType(GL_FLOAT_VEC4);
 	}
 };

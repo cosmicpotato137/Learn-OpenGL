@@ -65,11 +65,13 @@ void Object::SetAttrib(std::shared_ptr<ObjAttrib> attrib)
 template bool Object::DelAttrib<Mesh>();
 template bool Object::DelAttrib<Transform>();
 template bool Object::DelAttrib<Material>();
+template bool Object::DelAttrib<Camera>();
 template bool Object::DelAttrib<Light>();
 template bool Object::DelAttrib<MeshRenderer>();
 
 template std::shared_ptr<Mesh> Object::GetAttrib<Mesh>();
 template std::shared_ptr<Transform> Object::GetAttrib<Transform>();
 template std::shared_ptr<Material> Object::GetAttrib<Material>();
+template std::shared_ptr<Camera> Object::GetAttrib<Camera>();
 template std::shared_ptr<Light> Object::GetAttrib<Light>();
 template std::shared_ptr<MeshRenderer> Object::GetAttrib<MeshRenderer>();

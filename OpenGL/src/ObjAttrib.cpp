@@ -8,33 +8,25 @@
 //
 //-----------------------------------
 
-Transform::Transform(std::shared_ptr<glm::mat4> view, glm::vec3 pos, glm::vec3 rot, glm::vec3 scale)
-	: view(view), position(pos), rotation(rot), scale(scale)
+Transform::Transform(glm::vec3 pos, glm::vec3 rot, glm::vec3 scale)
+	:position(pos), rotation(rot), scale(scale)
 {
-	OnUpdate();
+	UpdateTransform();
 }
 
 Transform::~Transform()
 {
 }
 
-glm::vec3 Transform::ApplyTransf(glm::vec4 vec)
-{
-	OnUpdate();
-	return transform * vec;
-}
-
-void Transform::ApplyTransfInpl(glm::vec4& vec)
-{
-	OnUpdate();
-	vec = transform * vec;
-}
-
 void Transform::OnUpdate()
+{
+	UpdateTransform();
+}
+
+void Transform::UpdateTransform()
 {
 	glm::mat4 sca = glm::scale(glm::mat4(1), scale);
 	glm::mat4 pos = glm::translate(glm::mat4(1), position);
-
 	transform = sca * pos;
 }
 
@@ -55,7 +47,7 @@ void Transform::OnImGuiRender()
 //-----------------------------------
 
 Light::Light(glm::vec4 lightdir, glm::vec4 lightcol, float lightint)
-	: lightDir(lightdir), lightCol(lightcol), lightInt(lightint)
+	: lightDir(lightdir), lightCol(lightcol), lightInt(lightint), active(true)
 {
 }
 
@@ -63,14 +55,49 @@ Light::~Light()
 {
 }
 
+void Light::OnUpdate()
+{
+}
+
 void Light::OnImGuiRender()
 {
 	if (!ImGui::TreeNode("Direction Light"))
 		return;
+	ImGui::Checkbox("Active", &active);
 	ImGui::InputFloat3("Direction", &lightDir[0]);
 	ImGui::ColorEdit4("Color", &lightCol[0]);
 	ImGui::SliderFloat("Intensity", &lightInt, 0, 10);
 	ImGui::TreePop();
+}
+
+//-----------------------------------
+//
+// Camera
+//
+//-----------------------------------
+
+Camera::Camera(glm::mat4 proj, std::shared_ptr<Transform> transf)
+	: projection(proj), transf(transf), active(true),
+	eye(glm::vec3(0, 0, -1)), center(glm::vec3(0)), up(glm::vec3(0, 1, 0))
+{
+	UpdateView();
+}
+
+Camera::~Camera()
+{
+}
+
+void Camera::OnUpdate()
+{
+	eye = transf->position;
+	center = glm::vec3(0, 0, 0);
+	up = glm::vec3(0, 1, 0);
+	UpdateView();
+}
+
+void Camera::UpdateView()
+{
+	view = glm::lookAt(eye, center, up);
 }
 
 //-----------------------------------
@@ -85,9 +112,9 @@ Mesh::Mesh(const std::string& fp, std::shared_ptr<VertexArray> vao)
 	Parse();
 
 	VB = std::make_unique<VertexBuffer>(&vertices[0], Size());
-	VBL = std::make_unique<VertexBufferLayout>();
-	VBL->Push<glm::vec3>(2); // vertex positions
-	vao->AddBuffer(*VB, *VBL);
+	VertexBufferLayout vbl;
+	vbl.Push<glm::vec3>(2); // vertex positions
+	vao->AddBuffer(*VB, vbl);
 
 	IB = std::make_unique<IndexBuffer>(&indices[0], indices.size());
 }
@@ -158,7 +185,7 @@ void Mesh::Parse()
 		}
 		else if (c1 == 'f' && c2 == ' ')
 		{
-			fscanf_s(fp, "%d/%d/%d %d/%d/%d %d/%d/%d", &fa, &na, &ignore, &fb, &nb, &ignore, &fc, &nc, &ignore);
+			fscanf_s(fp, "%d//%d %d//%d %d//%d", &fa, &na, &fb, &nb, &fc, &nc);
 			// triangle indices -- (vert, normal)
 			inds.push_back(glm::vec2(fa - 1, na - 1));
 			inds.push_back(glm::vec2(fb - 1, nb - 1));
@@ -198,7 +225,7 @@ Material::Material(const std::string& name, const std::string& shaderpath, const
 {
 	Parse(matpath);
 	shader = std::make_shared<Shader>(shaderpath);
-	lightBuffer->BindUniformBlock("Light", shader);
+	lightBuffer->BindUniformBlock("LightBlock", shader);
 	LOG(name);
 	shader->PrintUniforms();
 	OnUpdate();
@@ -283,8 +310,8 @@ void Material::Parse(const std::string& matfile)
 //
 //-----------------------------------
 
-MeshRenderer::MeshRenderer(std::shared_ptr<Material> mat, std::shared_ptr<glm::mat4> proj)
-	: material(mat), proj(proj), isLit(true)
+MeshRenderer::MeshRenderer(std::shared_ptr<Material> mat, Object* activecamera)
+	: material(mat), activeCamera(activecamera), isLit(true)
 {
 }
 
@@ -315,11 +342,16 @@ void MeshRenderer::Clear() const
 
 void MeshRenderer::Draw(const Transform& transf, const Mesh& mesh)
 {
-	glm::mat4 modelview = *transf.view * transf.transform;
+	if (!activeCamera)
+		return;
 
+	glm::mat4 view = activeCamera->GetAttrib<Camera>()->view;
+	glm::mat4 proj = activeCamera->GetAttrib<Camera>()->projection;
+
+	glm::mat4 modelview = view * transf.transform;
 	material->shader->Bind();
 	material->shader->SetUniformMat4f("u_ModelView", modelview);
-	material->shader->SetUniformMat4f("u_Projection", *proj);
+	material->shader->SetUniformMat4f("u_Projection", proj);
 
 	material->shader->Bind();
 	mesh.VAO->Bind();

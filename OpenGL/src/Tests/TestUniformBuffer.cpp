@@ -4,56 +4,24 @@
 #include "VertexArray.h"
 #include "Renderer.h"
 #include "ObjAttrib.h"
+#include "GLLog.h"
 
 namespace test {
 
 	TestUniformBuffer::TestUniformBuffer()
 	{
-		GLCall(glEnable(GL_DEPTH_TEST));
+		unsigned int m_RendererID;
+		GLCall(glGenBuffers(1, &m_RendererID));
+		GLCall(glBindBuffer(GL_UNIFORM_BUFFER, m_RendererID));
+		GLCall(glBufferData(GL_UNIFORM_BUFFER, 152, NULL, GL_DYNAMIC_DRAW));
+		GLCall(glBindBuffer(GL_UNIFORM_BUFFER, 0));
 
-		m_Proj = std::make_shared<glm::mat4>(
-			glm::perspective(90.0f * glm::pi<float>() / 180.0f, 960.0f / 540.0f, 0.1f, 1500.0f));
+		int o;
+		glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &o);
 
-		//m_Proj = std::make_shared<glm::mat4>(
-		//	glm::ortho(0, 960, 0, 540));
+		GLCall(glBindBufferRange(GL_UNIFORM_BUFFER, 0, m_RendererID, 0, 16));
+		GLCall(glBindBufferRange(GL_UNIFORM_BUFFER, 1, m_RendererID, 256, 16));
 
-		m_View = std::make_shared<glm::mat4>(glm::lookAt(glm::vec3(0, 0, 500), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0)));
-
-		// lights
-		{
-			//m_Lights = std::make_shared<std::vector<std::shared_ptr<Object>>>();
-			m_Lights = new std::vector<std::shared_ptr<Object>>();
-			std::shared_ptr<Transform> transf1 = std::make_shared<Transform>(m_View, glm::vec3(1, 1, 1));
-			std::shared_ptr<Light> l1 = std::make_shared<Light>(glm::vec4(-1, -1, -1, 0), glm::vec4(1, 1, 1, 1), 1.0f);
-			std::shared_ptr<Object> light1 = std::make_shared<Object>("Light 1");
-			light1->SetAttrib(transf1);
-			light1->SetAttrib(l1);
-			m_Lights->push_back(light1);
-		}
-
-		UniformBufferLayout ubl;
-		ubl.Push<glm::vec4>(1);
-		ubl.Push<glm::vec4>(1);
-		ubl.Push<float>(1);
-		m_UBO = std::make_shared<UniformBuffer>(ubl, 0);
-
-		m_VAO = std::make_shared<VertexArray>();
-
-		std::shared_ptr<Transform> transf = std::make_shared<Transform>(m_View); // make transform
-		std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>(std::string("res/models/box.obj"), m_VAO); // make mesh
-		m_Mat1 = std::make_shared<Material>("Regular", "res/shaders/debug.shader", "res/models/box.mtl", m_UBO); // make material
-		std::shared_ptr<MeshRenderer> meshrenderer = std::make_shared<MeshRenderer>(m_Mat1, m_Proj); // make mesh renderer
-
-		model = std::make_unique<Object>("teapot");
-		model->SetAttrib(transf);
-		model->SetAttrib(mesh);
-		model->SetAttrib(meshrenderer);
-		model->SetAttrib(m_Mat1);
-
-		model->GetAttrib<Transform>()->scale = glm::vec3(100, 100, 100);
-
-		OnUpdate(0.0f);
-		OnRender();
 	}
 
 	TestUniformBuffer::~TestUniformBuffer()

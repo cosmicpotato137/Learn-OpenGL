@@ -2,7 +2,6 @@
 
 #include <vector>
 #include <string>
-#include <iostream>
 
 #include "Shader.h"
 #include "VertexArray.h"
@@ -11,7 +10,6 @@
 #include "IndexBuffer.h"
 #include "Shader.h"
 #include "Texture.h"
-#include "Renderer.h"
 #include "UniformBuffer.h"
 
 #include "glm/glm.hpp"
@@ -38,28 +36,33 @@ public:
 class Transform : public ObjAttrib
 {
 public:
-	Transform(std::shared_ptr<glm::mat4> view, glm::vec3 pos = glm::vec3(0), glm::vec3 rot = glm::vec3(0), glm::vec3 scale = glm::vec3(0));
-	~Transform();
-
-	glm::vec3 ApplyTransf(glm::vec4 vec);
-	void ApplyTransfInpl(glm::vec4& vec);
-
-	void OnUpdate() override;
-
-	void OnImGuiRender() override;
-
-public:
 	glm::vec3 position;
 	glm::vec3 scale;
 	glm::vec3 rotation;
 	glm::mat4 transform;
-	std::shared_ptr<glm::mat4> view;
+public:
+	Transform(glm::vec3 pos = glm::vec3(0), glm::vec3 rot = glm::vec3(0), glm::vec3 scale = glm::vec3(0));
+	~Transform();
 
-private:
+	void OnUpdate() override;
+	void OnImGuiRender() override;
+
+	void UpdateTransform();
+
 };
 
 class Mesh : public ObjAttrib
 {
+public:
+	std::shared_ptr<VertexArray> VAO;
+	std::unique_ptr<IndexBuffer> IB;
+
+private:
+	std::string filepath;
+	std::vector<glm::vec3> vertices;
+	std::vector<unsigned int> indices;
+	std::unique_ptr<VertexBuffer> VB;
+
 public:
 	Mesh(const std::string& filepath, std::shared_ptr<VertexArray> vao);
 	~Mesh();
@@ -69,45 +72,44 @@ public:
 
 private:
 	void Parse();
+};
 
+class Camera : public ObjAttrib
+{
 public:
-	std::shared_ptr<VertexArray> VAO;
-	std::unique_ptr<VertexBuffer> VB;
-	std::unique_ptr<VertexBufferLayout> VBL;
-	std::unique_ptr<IndexBuffer> IB;
-	std::string filepath;
-
+	bool active;
+	glm::mat4 projection;
+	glm::mat4 view;
 private:
-	std::vector<glm::vec3> vertices;
-	std::vector<unsigned int> indices;
+	std::shared_ptr<Transform> transf;
+	glm::vec3 eye, center, up;
+public:
+	Camera(glm::mat4 proj, std::shared_ptr<Transform> transf);
+	~Camera();
+
+	void OnUpdate() override;
+
+	void UpdateView();
 };
 
 class Light : public ObjAttrib
 {
 public:
-	Light(glm::vec4 lightdir, glm::vec4 lightcol, float lightint);
-	~Light();
-
-	void OnImGuiRender() override;
-
-public:
+	bool active;
 	glm::vec4 lightDir;
 	glm::vec4 lightCol;
 	float lightInt;
+
+public:
+	Light(glm::vec4 lightdir, glm::vec4 lightcol, float lightint);
+	~Light();
+
+	void OnUpdate() override;
+	void OnImGuiRender() override;
 };
 
 class Material : public ObjAttrib
 {
-public:
-	Material(const std::string& name, const std::string& shaderpath, const std::string& matpath, std::shared_ptr<UniformBuffer> lightbuffer);
-	~Material();
-
-	void OnUpdate() override;
-	void OnImGuiRender() override;
-
-private:
-	void Parse(const std::string& matfile);
-
 public:
 	std::string name;
 	std::string shaderPath;
@@ -119,14 +121,28 @@ public:
 	float specInt;
 	glm::vec4 specCol;
 	
-	std::vector<std::shared_ptr<Object>>* lights;
 	std::shared_ptr<UniformBuffer> lightBuffer;
+
+public:
+	Material(const std::string& name, const std::string& shaderpath, const std::string& matpath, std::shared_ptr<UniformBuffer> lightbuffer);
+	~Material();
+
+	void OnUpdate() override;
+	void OnImGuiRender() override;
+
+private:
+	void Parse(const std::string& matfile);
 };
 
 class MeshRenderer : public ObjAttrib
 {
+private:
+	std::shared_ptr<Material> material;
+	Object* activeCamera;
+	bool isLit;
+
 public:
-	MeshRenderer(std::shared_ptr<Material> mat, std::shared_ptr<glm::mat4> proj);
+	MeshRenderer(std::shared_ptr<Material> mat, Object* activecamera);
 	~MeshRenderer();
 
 	void OnUpdate() override;
@@ -134,9 +150,4 @@ public:
 
 	void Clear() const;
 	void Draw(const Transform& transf, const Mesh& mesh);
-
-public:
-	std::shared_ptr<Material> material;
-	std::shared_ptr<glm::mat4> proj;
-	bool isLit;
 };

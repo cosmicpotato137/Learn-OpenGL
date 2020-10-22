@@ -111,7 +111,7 @@ void Shader::Unbind() const
 // sets the binding point of a uniform block and returns its index
 void Shader::SetUniformBlockIndex(const std::string& name, unsigned int binding)
 {
-    GLCall(unsigned int ubo = glGetUniformBlockIndex(m_RendererID, "Light"));
+    GLCall(unsigned int ubo = glGetUniformBlockIndex(m_RendererID, name.c_str()));
     GLCall(glUniformBlockBinding(m_RendererID, ubo, binding));
 }
 

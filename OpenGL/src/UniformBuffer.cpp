@@ -2,13 +2,13 @@
 
 #include "GLLog.h"
 
-UniformBuffer::UniformBuffer(UniformBufferLayout layout, unsigned int layoutcount, unsigned int binding)
-	: BL(layout), m_Binding(binding), m_LayoutCount(layoutcount)
+UniformBuffer::UniformBuffer(UniformBufferLayout layout, unsigned int numelements, unsigned int binding)
+	: BL(layout), m_Binding(binding), m_NumElements(numelements)
 {
 	// create the uniform BUFFER and bind it to the correct binding point
 	GLCall(glGenBuffers(1, &m_RendererID));
 	GLCall(glBindBuffer(GL_UNIFORM_BUFFER, m_RendererID));
-	GLCall(glBufferData(GL_UNIFORM_BUFFER, layout.ByteSize() * layoutcount, NULL, GL_DYNAMIC_DRAW));
+	GLCall(glBufferData(GL_UNIFORM_BUFFER, layout.ByteSize() * numelements, NULL, GL_DYNAMIC_DRAW));
 	GLCall(glBindBuffer(GL_UNIFORM_BUFFER, 0));
 
 	GLCall(glBindBufferBase(GL_UNIFORM_BUFFER, binding, m_RendererID));
@@ -33,7 +33,7 @@ void UniformBuffer::SetBufferSubData(unsigned int x, unsigned int y, const void*
 	unsigned int size = BufferElement::GetSizeOfType(BL[x].type);
 	// make sure data will stay within the index size
 	ASSERT(sizeof(data) <= size);
-	ASSERT(y < m_LayoutCount);
+	ASSERT(y < m_NumElements);
 	// write to buffer
 	GLCall(glBufferSubData(GL_UNIFORM_BUFFER, BL.ByteSize() * y + BL[x].offset, size, data));
 
@@ -47,6 +47,6 @@ void UniformBuffer::GetBufferSubData(unsigned int x, unsigned int y, void* data)
 {
 	GLCall(glBindBuffer(GL_UNIFORM_BUFFER, m_RendererID));
 	unsigned int size = BufferElement::GetSizeOfType(BL[x].type);
-	glGetBufferSubData(GL_UNIFORM_BUFFER, 0, BL.ByteSize() * m_LayoutCount, data);
+	glGetBufferSubData(GL_UNIFORM_BUFFER, 0, BL.ByteSize() * m_NumElements, data);
 	GLCall(glBindBuffer(GL_UNIFORM_BUFFER, 0));
 }

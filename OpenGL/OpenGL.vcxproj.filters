@@ -27,6 +27,7 @@
     <ClCompile Include="src\UniformBuffer.cpp" />
     <ClCompile Include="src\BufferLayout.cpp" />
     <ClCompile Include="src\Tests\TestUniformBuffer.cpp" />
+    <ClCompile Include="src\ObjScripts\CameraMove.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\GLLog.h" />
@@ -337,6 +338,7 @@
     <ClInclude Include="src\UniformBuffer.h" />
     <ClInclude Include="src\BufferLayout.h" />
     <ClInclude Include="src\Tests\TestUniformBuffer.h" />
+    <ClInclude Include="src\ObjScripts\CameraMove.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\textures\dirt.png" />

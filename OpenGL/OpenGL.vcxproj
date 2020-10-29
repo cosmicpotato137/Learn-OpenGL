@@ -96,6 +96,7 @@
     <ClCompile Include="src\GLLog.cpp" />
     <ClCompile Include="src\IndexBuffer.cpp" />
     <ClCompile Include="src\Object.cpp" />
+    <ClCompile Include="src\ObjScripts\CameraMove.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\Shader.cpp" />
@@ -272,6 +273,7 @@
     <ClInclude Include="src\GLLog.h" />
     <ClInclude Include="src\IndexBuffer.h" />
     <ClInclude Include="src\Object.h" />
+    <ClInclude Include="src\ObjScripts\CameraMove.h" />
     <ClInclude Include="src\Renderer.h" />
     <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\Tests\TestPhong.h" />

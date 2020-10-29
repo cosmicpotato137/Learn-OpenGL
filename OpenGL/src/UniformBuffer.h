@@ -7,7 +7,7 @@ class UniformBuffer
 private:
 	unsigned int m_RendererID;
 	unsigned int m_Binding;
-	unsigned int m_LayoutCount;
+	unsigned int m_NumElements;
 	UniformBufferLayout BL;
 
 public:

@@ -11,6 +11,8 @@
 Transform::Transform(glm::vec3 pos, glm::vec3 rot, glm::vec3 scale)
 	:position(pos), rotation(rot), scale(scale)
 {
+	up = glm::vec3(0, 1, 0);
+	forward = glm::vec3(0, 0, 1);
 	UpdateTransform();
 }
 
@@ -20,14 +22,8 @@ Transform::~Transform()
 
 void Transform::OnUpdate()
 {
+	//UpdateRotation();
 	UpdateTransform();
-}
-
-void Transform::UpdateTransform()
-{
-	glm::mat4 sca = glm::scale(glm::mat4(1), scale);
-	glm::mat4 pos = glm::translate(glm::mat4(1), position);
-	transform = sca * pos;
 }
 
 void Transform::OnImGuiRender()
@@ -39,6 +35,54 @@ void Transform::OnImGuiRender()
 	ImGui::InputFloat3("Scale", &scale[0], 3);
 	ImGui::TreePop();
 }
+
+void Transform::UpdateTransform()
+{
+	glm::vec4 u(glm::normalize(glm::cross(up, forward)), 0);
+	glm::vec4 v(glm::normalize(up), 0);
+	glm::vec4 w(glm::normalize(forward), 0);
+	glm::mat4 frame(u, v, w, glm::vec4(0, 0, 0, 1));
+
+	glm::mat4 sca = glm::scale(glm::mat4(1), scale);
+	glm::mat4 pos = glm::translate(glm::mat4(1), position);
+	transform = frame * pos * sca;
+}
+
+void Transform::UpdateBasis(glm::mat4 mat)
+{
+	up = mat * glm::vec4(up, 1);
+	forward = mat * glm::vec4(forward, 1);
+	UpdateTransform();
+}
+
+void Transform::UpdatePosition(glm::mat4 mat)
+{
+	position = mat * glm::vec4(position, 1);
+	UpdateTransform();
+}
+
+void Transform::UpdateRotation(glm::vec3 rot)
+{
+	rotation += rot;
+	RotateVec3(up, rot);
+	RotateVec3(forward, rot);
+	UpdateTransform();
+}
+
+void Transform::RotateVec4(glm::vec4& v4, glm::vec3 rot)
+{
+	v4 = glm::rotate(glm::mat4(1), rotation.x, glm::vec3(0, 1, 0)) * v4;
+	v4 = glm::rotate(glm::mat4(1), rotation.y, glm::vec3(1, 0, 0)) * v4;
+	v4 = glm::rotate(glm::mat4(1), rotation.z, glm::vec3(0, 0, 1)) * v4;
+}
+
+void Transform::RotateVec3(glm::vec3& v3, glm::vec3 rot)
+{
+	v3 = glm::rotate(glm::mat4(1), glm::radians(rot.x), glm::vec3(0, 1, 0)) * glm::vec4(v3, 0);
+	v3 = glm::rotate(glm::mat4(1), glm::radians(rot.y), glm::vec3(1, 0, 0)) * glm::vec4(v3, 0);
+	v3 = glm::rotate(glm::mat4(1), glm::radians(rot.z), glm::vec3(0, 0, 1)) * glm::vec4(v3, 0);
+}
+
 
 //-----------------------------------
 //
@@ -78,7 +122,7 @@ void Light::OnImGuiRender()
 
 Camera::Camera(glm::mat4 proj, std::shared_ptr<Transform> transf)
 	: projection(proj), transf(transf), active(true),
-	eye(glm::vec3(0, 0, -1)), center(glm::vec3(0)), up(glm::vec3(0, 1, 0))
+	eye(transf->position), center(transf->forward), up(transf->up)
 {
 	UpdateView();
 }
@@ -89,15 +133,12 @@ Camera::~Camera()
 
 void Camera::OnUpdate()
 {
-	eye = transf->position;
-	center = glm::vec3(0, 0, 0);
-	up = glm::vec3(0, 1, 0);
 	UpdateView();
 }
 
 void Camera::UpdateView()
 {
-	view = glm::lookAt(eye, center, up);
+	view = glm::lookAt(transf->position, transf->forward, transf->up);
 }
 
 //-----------------------------------
@@ -111,9 +152,9 @@ Mesh::Mesh(const std::string& fp, std::shared_ptr<VertexArray> vao)
 {
 	Parse();
 
-	VB = std::make_unique<VertexBuffer>(&vertices[0], Size());
+	VB = std::make_unique <VertexBuffer>(&vertices[0], Size());
 	VertexBufferLayout vbl;
-	vbl.Push<glm::vec3>(2); // vertex positions
+	vbl.Push<glm::vec3>(1); // vertex positions
 	vao->AddBuffer(*VB, vbl);
 
 	IB = std::make_unique<IndexBuffer>(&indices[0], indices.size());
@@ -136,6 +177,11 @@ void Mesh::OnImGuiRender()
 	ImGui::Text(file.c_str());
 	ImGui::Text("Vertices: %i", vertices.size());
 	ImGui::TreePop();
+}
+
+void Mesh::GetNormals()
+{
+
 }
 
 void Mesh::Parse()
@@ -209,7 +255,7 @@ void Mesh::Parse()
 	for (unsigned int i = 0; i < inds.size(); i++)
 	{
 		vertices.push_back(verts[inds[i].x]);
-		vertices.push_back(norms[inds[i].y]);
+		normals.push_back(norms[inds[i].y]);
 		indices.push_back(i);
 	}
 }

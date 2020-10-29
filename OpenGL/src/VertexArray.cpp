@@ -11,20 +11,20 @@ VertexArray::~VertexArray()
     GLCall(glDeleteVertexArrays(1, &m_RendererID));
 }
 
-void VertexArray::AddBuffer(const VertexBuffer& vb, const VertexBufferLayout& layout)
+void VertexArray::AddBuffer(const VertexBuffer& vb, const VertexBufferLayout& layout, unsigned int lpos)
 {
     Bind();
 	vb.Bind();
     // list of all elements in m_Elements vector
     const auto& elements = layout.GetElements();
 
-    for (int lpos = 0; lpos < elements.size(); lpos++)
+    for (int i = 0; i < elements.size(); i++)
     {
-        const auto& element = elements[lpos];
+        const auto& element = elements[i];
         // pushes data to the target buffer
-        GLCall(glEnableVertexAttribArray(lpos));
+        GLCall(glEnableVertexAttribArray(i + lpos));
         // formatting of data in current 
-        GLCall(glVertexAttribPointer(lpos, element.count, element.type, 
+        GLCall(glVertexAttribPointer(i + lpos, element.count, element.type, 
             element.normalized, layout.ByteSize(), (const void*)element.offset));
     }
 }

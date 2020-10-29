@@ -19,6 +19,7 @@
 #include "VertexBuffer.h"
 #include "BufferLayout.h"
 #include "IndexBuffer.h"
+#include "UniformBuffer.h"
 
 // foreward declaring the object class to avoid infinite inclusion
 class Object;
@@ -36,18 +37,24 @@ public:
 class Transform : public ObjAttrib
 {
 public:
-	glm::vec3 position;
-	glm::vec3 scale;
-	glm::vec3 rotation;
+	glm::vec3 position, scale, rotation, up, forward;
 	glm::mat4 transform;
+private:
+	glm::vec3 o_pos, o_scl, o_rot, o_up, o_fwd;
 public:
-	Transform(glm::vec3 pos = glm::vec3(0), glm::vec3 rot = glm::vec3(0), glm::vec3 scale = glm::vec3(0));
+	Transform(glm::vec3 pos = glm::vec3(0), glm::vec3 rot = glm::vec3(0), glm::vec3 scale = glm::vec3(1));
 	~Transform();
 
 	void OnUpdate() override;
 	void OnImGuiRender() override;
+	void UpdateBasis(glm::mat4 mat);
+	void UpdatePosition(glm::mat4 mat);
+	void UpdateRotation(glm::vec3 rot);
 
+private:
 	void UpdateTransform();
+	void RotateVec4(glm::vec4& v4, glm::vec3 rot);
+	void RotateVec3(glm::vec3& v3, glm::vec3 rot);
 
 };
 
@@ -60,8 +67,10 @@ public:
 private:
 	std::string filepath;
 	std::vector<glm::vec3> vertices;
+	std::vector<glm::vec3> normals;
 	std::vector<unsigned int> indices;
 	std::unique_ptr<VertexBuffer> VB;
+	std::unique_ptr<UniformBuffer> NB;
 
 public:
 	Mesh(const std::string& filepath, std::shared_ptr<VertexArray> vao);
@@ -69,6 +78,8 @@ public:
 
 	unsigned int Size();
 	void OnImGuiRender() override;
+	
+	void GetNormals();
 
 private:
 	void Parse();

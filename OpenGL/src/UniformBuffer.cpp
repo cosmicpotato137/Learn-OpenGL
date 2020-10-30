@@ -24,20 +24,16 @@ void UniformBuffer::BindUniformBlock(const std::string& name, std::shared_ptr<Sh
 	shader->SetUniformBlockIndex(name, m_Binding);
 }
 
-void UniformBuffer::SetBufferSubData(unsigned int x, unsigned int y, const void* data)
+void UniformBuffer::SetBufferSubData(unsigned int x, unsigned int y, unsigned int size, const void* data)
 {
 	// bind buffer
 	GLCall(glBindBuffer(GL_UNIFORM_BUFFER, m_RendererID));
 
-	// get buffer index size
-	unsigned int size = BufferElement::GetSizeOfType(BL[x].type);
 	// make sure data will stay within the index size
-	ASSERT(sizeof(data) <= size);
-	ASSERT(y < m_NumElements);
+	ASSERT(x < BL.Size() && x >= 0);
+	ASSERT(y < m_NumElements && y >= 0);
 	// write to buffer
 	GLCall(glBufferSubData(GL_UNIFORM_BUFFER, BL.ByteSize() * y + BL[x].offset, size, data));
-
-
 
 	// make sure to tell OpenGL we're done with the pointer
 	GLCall(glBindBuffer(GL_UNIFORM_BUFFER, 0));

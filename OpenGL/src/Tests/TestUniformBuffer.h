@@ -24,7 +24,6 @@ namespace test {
 		std::unique_ptr<Object> model;
 		std::shared_ptr<VertexArray> m_VAO;
 		std::shared_ptr<glm::mat4> m_Proj, m_View;
-		glm::vec4 color;
 
 		std::vector<std::shared_ptr<Object>>* m_Lights;
 		std::shared_ptr<UniformBuffer> m_LightBuffer;

@@ -70,16 +70,17 @@ private:
 	std::vector<glm::vec3> normals;
 	std::vector<unsigned int> indices;
 	std::unique_ptr<VertexBuffer> VB;
-	std::unique_ptr<UniformBuffer> NB;
+	std::unique_ptr<VertexBuffer> NB;
 
 public:
 	Mesh(const std::string& filepath, std::shared_ptr<VertexArray> vao);
 	~Mesh();
 
-	unsigned int Size();
 	void OnImGuiRender() override;
 	
-	void GetNormals();
+	inline unsigned int Size() { return indices.size(); }
+	void SetNormals();
+	void SmoothNormals();
 
 private:
 	void Parse();

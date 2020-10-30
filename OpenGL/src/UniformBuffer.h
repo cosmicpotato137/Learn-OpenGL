@@ -15,7 +15,7 @@ public:
 	~UniformBuffer();
 
 	void BindUniformBlock(const std::string& name, std::shared_ptr<Shader> shader);
-	void SetBufferSubData(unsigned int x, unsigned int y, const void* data);
+	void SetBufferSubData(unsigned int x, unsigned int y, unsigned int size, const void* data);
 	void GetBufferSubData(unsigned int x, unsigned int y, void* data);
 };
 

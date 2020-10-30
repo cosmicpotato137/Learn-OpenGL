@@ -86,9 +86,9 @@ namespace test {
 			glm::vec4 dir = m_ActiveCamera->GetAttrib<Camera>()->view * light.lightDir;
 			glm::vec4 col = light.active ? light.lightCol : glm::vec4(0);
 
-			m_LightBuffer->SetBufferSubData(0, i, &dir);
-			m_LightBuffer->SetBufferSubData(1, i, &col);
-			m_LightBuffer->SetBufferSubData(2, i, &light.lightInt);
+			m_LightBuffer->SetBufferSubData(0, i, sizeof(dir), &dir);
+			m_LightBuffer->SetBufferSubData(1, i, sizeof(col), &col);
+			m_LightBuffer->SetBufferSubData(2, i, sizeof(light.lightInt), &light.lightInt);
 			i++;
 		}
 

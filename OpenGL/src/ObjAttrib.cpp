@@ -1,6 +1,7 @@
 #include "ObjAttrib.h"
 #include "Object.h"
 #include "imgui/imgui.h"
+#include <unordered_map>
 
 //-----------------------------------
 //
@@ -152,21 +153,22 @@ Mesh::Mesh(const std::string& fp, std::shared_ptr<VertexArray> vao)
 {
 	Parse();
 
-	VB = std::make_unique <VertexBuffer>(&vertices[0], Size());
 	VertexBufferLayout vbl;
 	vbl.Push<glm::vec3>(1); // vertex positions
+
+	// vertex buffer
+	VB = std::make_unique<VertexBuffer>(&vertices[0], Size() * vbl.ByteSize(), GL_STATIC_DRAW);
 	vao->AddBuffer(*VB, vbl);
 
-	IB = std::make_unique<IndexBuffer>(&indices[0], indices.size());
+	// normal buffer
+	NB = std::make_unique<VertexBuffer>(&normals[0], Size() * vbl.ByteSize(), GL_DYNAMIC_DRAW);
+	vao->AddBuffer(*NB, vbl, 1);
+
+	IB = std::make_unique<IndexBuffer>(&indices[0], Size());
 }
 
 Mesh::~Mesh()
 {
-}
-
-unsigned int Mesh::Size()
-{
-	return vertices.size() * sizeof(glm::vec3);
 }
 
 void Mesh::OnImGuiRender()
@@ -176,12 +178,44 @@ void Mesh::OnImGuiRender()
 	std::string file = std::string("File: ") + filepath;
 	ImGui::Text(file.c_str());
 	ImGui::Text("Vertices: %i", vertices.size());
+
+	if (ImGui::Button("Calculate Normals"))
+		SetNormals();
+	if (ImGui::Button("Smooth Normals"))
+		SmoothNormals();
 	ImGui::TreePop();
 }
 
-void Mesh::GetNormals()
+void Mesh::SetNormals()
 {
+	for (int i = 0; i < Size(); i += 3)
+	{
+		// calculate normal
+		glm::vec3 v1 = vertices[i] - vertices[i + 1];
+		glm::vec3 v2 = vertices[i] - vertices[i + 2];
+		glm::vec3 norm = glm::normalize(glm::cross(v1, v2));
 
+		// assign normal to each vertex
+		glm::vec3 norms[] = { norm, norm, norm };
+		NB->SetBufferSubData(i * sizeof(glm::vec3), sizeof(norms), &norms[0]);
+	}
+}
+
+void Mesh::SmoothNormals()
+{
+	std::unordered_map<std::string, glm::vec3> temp;
+	for (int i = 0; i < Size(); i++)
+	{
+		if (!&temp[vertices[i]])
+			temp[vertices[i]] = normals[i];
+		else
+			temp[vertices[i]] += normals[i]; 
+	}
+
+	for (int i = 0; i < Size(); i++)
+	{
+		//normals[i] = glm::normalize(temp[vertices[i]]);
+	}
 }
 
 void Mesh::Parse()
